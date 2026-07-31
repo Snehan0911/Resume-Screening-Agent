@@ -1,0 +1,32 @@
+GEORGE COSTANZA
+Email: george.costanza@email.com | Phone: 555-0109 | New York, NY
+LinkedIn: linkedin.com/in/georgecostanzacodes
+
+PROFESSIONAL SUMMARY
+Motivated Junior Web Developer with 1 year of experience building basic websites. Experienced in HTML, CSS, and basic vanilla JavaScript. Seeking an entry-level software engineering role to apply my skills and learn advanced technologies.
+
+TECHNICAL SKILLS
+- Frontend: HTML5, CSS3, Vanilla JavaScript, jQuery, Bootstrap
+- Tools: VS Code, Git, GitHub
+- Office Tools: Microsoft Word, Excel, PowerPoint
+
+PROFESSIONAL EXPERIENCE
+
+Junior Web Developer | Vandelay Industries | New York, NY
+May 2024 - Present
+- Created static marketing web pages using HTML, CSS, and Bootstrap, ensuring mobile responsiveness.
+- Fixed basic visual bugs and broken links across internal static sites.
+- Updated copy and media assets on client websites based on feedback.
+- Collaborated with marketing teams on content layouts.
+
+Assistant Project Coordinator | Play Now Sports | New York, NY
+September 2022 - April 2024
+- Assisted in scheduling software deployments and client feedback meetings.
+- Documented meeting minutes and updated team progress boards in Excel.
+
+EDUCATION
+Certificate in Web Design
+Queens College | 2022 (6-Month Program)
+
+Bachelor of Arts in Art History
+Brooklyn College | 2018 - 2022

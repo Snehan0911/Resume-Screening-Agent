@@ -1,0 +1,30 @@
+KEVIN BAKER
+Email: kevin.baker@email.com | Phone: 555-0122 | Austin, TX
+GitHub: github.com/kevinbaker | LinkedIn: linkedin.com/in/kevinbaker
+
+PROFESSIONAL SUMMARY
+Full-Stack Developer with 3.5 years of experience building reliable web applications. Strong experience writing clean backend code in Python (FastAPI, Django) and interactive client UIs in React and TypeScript. Comfortable working with Docker, relational databases, and CI/CD pipelines.
+
+TECHNICAL SKILLS
+- Backend: Python, FastAPI, Django, PostgreSQL, REST APIs
+- Frontend: JavaScript, TypeScript, React, HTML5, CSS3, TailwindCSS
+- DevOps & Tools: Docker, Git, GitHub Actions, AWS (EC2, S3)
+
+PROFESSIONAL EXPERIENCE
+
+Full-Stack Software Engineer | EnterpriseApp Corp | Austin, TX
+July 2023 - Present
+- Built and maintained internal API endpoints using FastAPI and PostgreSQL, supporting 2,000+ daily active users.
+- Developed dynamic front-end dashboards in React/TypeScript with real-time charting and filters.
+- Package-managed and containerized the local development environment using Docker and Docker Compose.
+- Maintained code coverage above 80% using pytest and Jest.
+
+Associate Software Engineer | WebVentures | Austin, TX
+February 2022 - June 2023
+- Designed responsive landing pages and web apps using React and CSS Modules.
+- Developed backend REST endpoints in Django REST Framework.
+- Collaborated in an agile scrum team participating in sprints, standups, and planning.
+
+EDUCATION
+Bachelor of Science in Software Engineering
+University of Texas at Dallas | 2018 - 2022

@@ -1,0 +1,32 @@
+HELEN VANCE
+Email: helen.vance@email.com | Phone: 555-0171 | San Diego, CA
+GitHub: github.com/helenvance | LinkedIn: linkedin.com/in/helenvance
+
+PROFESSIONAL SUMMARY
+Senior Frontend Engineer with 6 years of experience building beautiful, responsive, and high-performance user interfaces. Expert in React, TypeScript, and state management frameworks. Passionate about design systems, web performance optimization, and accessibility (a11y).
+
+TECHNICAL SKILLS
+- Frontend: HTML5, CSS3, JavaScript (ES6+), TypeScript, React.js, Next.js, Redux, Context API, TailwindCSS, CSS Modules
+- Testing: Jest, Vitest, React Testing Library, Cypress
+- Build Tools & Package Managers: Vite, Webpack, npm, yarn, pnpm
+- Infrastructure: Git, AWS (S3, CloudFront), Docker (basic)
+
+PROFESSIONAL EXPERIENCE
+
+Senior Frontend Engineer | WebDesign Labs | San Diego, CA
+November 2022 - Present
+- Built and maintained a reusable UI component library in React & TypeScript, utilized by 4 different product teams, reducing design-to-dev time by 30%.
+- Migrated primary customer dashboard from Webpack/React to Vite/Next.js, reducing bundle size by 45% and improving initial load time by 1.8 seconds.
+- Led front-end architecture decisions for a new SaaS metrics visualizer, implementing client-side caching and optimizing rendering performance.
+- Championed WCAG 2.1 AA accessibility compliance across all company properties.
+
+Frontend Developer | AppStudio | Los Angeles, CA
+September 2020 - October 2022
+- Developed responsive web interfaces for e-commerce clients using React and Redux.
+- Collaborated closely with designers using Figma to build pixel-perfect UI.
+- Integrated REST and GraphQL APIs into frontend applications.
+- Set up unit tests using Jest and React Testing Library, achieving 80% coverage.
+
+EDUCATION
+Bachelor of Science in Web Design & Development
+San Diego State University | 2016 - 2020

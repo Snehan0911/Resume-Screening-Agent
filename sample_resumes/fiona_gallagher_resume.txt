@@ -1,0 +1,34 @@
+FIONA GALLAGHER
+Email: fiona.gallagher@email.com | Phone: 555-0162 | Chicago, IL
+GitHub: github.com/fionacodes | LinkedIn: linkedin.com/in/fionagallagher
+
+PROFESSIONAL SUMMARY
+Senior Backend Software Engineer with 7 years of experience building high-performance, transactional APIs and distributed systems in Python. Expert in databases, microservice architecture, and background task queues. Committed to writing clean, maintainable code following SOLID principles.
+
+TECHNICAL SKILLS
+- Backend: Python, FastAPI, Django, Flask, Node.js
+- Databases & Caching: PostgreSQL, Redis, MongoDB, MySQL, SQLite
+- Messaging & Task Queues: RabbitMQ, Celery, Kafka
+- Infrastructure: Docker, AWS (RDS, S3, ECS), Git, Linux, CI/CD
+- Concepts: RESTful APIs, OOP, Design Patterns, TDD, Agile/Scrum
+
+PROFESSIONAL EXPERIENCE
+
+Senior Backend Engineer | FinTech Group Inc. | Chicago, IL
+April 2022 - Present
+- Designed and built a transactional payment gateway microservice using FastAPI, handling 5,000+ operations per second.
+- Optimized slow SQL queries and PostgreSQL database indexes, reducing report generation times by 80%.
+- Integrated Redis for session caching and API throttling, reducing server load during peak traffic.
+- Set up Celery background task processing queues for sending notifications and running batch statements.
+- Mentored junior engineers and conducted standard code reviews for a 6-person backend squad.
+
+Python Backend Developer | CoreWeb Services | Chicago, IL
+June 2019 - March 2022
+- Developed scalable REST APIs using Django REST Framework for a real estate matching platform.
+- Managed database schemas, migrations, and model optimization using SQLAlchemy.
+- Containerized development environments using Docker Compose, streamlining local developer setup.
+- Implemented unit tests using pytest, raising test coverage across all microservices to 90%.
+
+EDUCATION
+Bachelor of Science in Computer Science
+University of Illinois Chicago | 2015 - 2019

@@ -1,0 +1,38 @@
+ALICE SMITH
+Email: alice.smith@email.com | Phone: 555-0192 | Seattle, WA
+GitHub: github.com/alicesmith | LinkedIn: linkedin.com/in/alicesmith
+
+PROFESSIONAL SUMMARY
+Senior Full-Stack Engineer with over 6 years of experience specializing in building highly scalable web applications. Expert in Python backend development (FastAPI, Flask) and modern frontend interfaces using React and TypeScript. Passionate about software craftsmanship, clean code, and mentoring junior engineers.
+
+TECHNICAL SKILLS
+- Backend: Python, FastAPI, Flask, Django, SQL (PostgreSQL, MySQL)
+- Frontend: JavaScript (ES6+), TypeScript, React.js, Redux, HTML5, CSS3, TailwindCSS
+- Infrastructure & DevOps: Docker, AWS (EC2, S3, RDS, Lambda), Git, GitHub Actions, CI/CD
+- Methods: Agile/Scrum, TDD, RESTful API design
+
+PROFESSIONAL EXPERIENCE
+
+Senior Full-Stack Engineer | TechSolutions Corp | Seattle, WA
+June 2022 - Present
+- Designed and built a scalable asset management dashboard using FastAPI and React/TypeScript, reducing page load times by 40%.
+- Led a team of 4 engineers in migrating a legacy Django application to an asynchronous FastAPI backend, increasing throughput by 2.5x.
+- Architected CI/CD pipelines using GitHub Actions and deployed microservices to AWS ECS using Docker.
+- Spearheaded the integration of OpenAI and Gemini APIs to introduce automated tagging of user assets, increasing user engagement by 15%.
+
+Full-Stack Developer | InnovateWeb Inc | San Francisco, CA
+March 2020 - May 2022
+- Developed core user-facing features using React and Redux, improving user retention by 20%.
+- Built RESTful APIs using Python (Flask) and PostgreSQL to handle thousands of concurrent requests.
+- Integrated Redis cache to optimize slow query endpoints, reducing API response latency by 150ms.
+- Wrote unit and integration tests using PyTest and Jest, maintaining 85%+ test coverage.
+
+Software Engineer | StartUp Labs | Austin, TX
+July 2018 - February 2020
+- Built prototype features using React and Node.js.
+- Maintained PostgreSQL database tables and optimized SQL queries.
+- Participated in daily standups and sprint planning sessions in an agile environment.
+
+EDUCATION
+Bachelor of Science in Computer Science
+University of Washington, Seattle | 2014 - 2018

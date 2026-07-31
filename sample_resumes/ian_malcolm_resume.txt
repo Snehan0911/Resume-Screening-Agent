@@ -1,0 +1,32 @@
+IAN MALCOLM
+Email: ian.malcolm@email.com | Phone: 555-0199 | Austin, TX
+LinkedIn: linkedin.com/in/ianmalcolm
+
+PROFESSIONAL SUMMARY
+Systems Administrator with 6 years of experience managing Linux servers, network configurations, database instances, and enterprise virtualization platforms. Proficient in automated patching, shell scripting, and hardware troubleshooting.
+
+TECHNICAL SKILLS
+- Operating Systems: Red Hat Enterprise Linux (RHEL), CentOS, Ubuntu Server, Windows Server
+- Networking: TCP/IP, DNS, DHCP, VPN, Firewalls, Cisco Switches
+- Databases: PostgreSQL administration, MySQL backup/replication
+- Scripting: Bash, Perl, basic Python (for sysadmin scripts)
+- Virtualization: VMware vSphere, KVM, VirtualBox
+
+PROFESSIONAL EXPERIENCE
+
+Systems Administrator | Jurassic Tech | Austin, TX
+August 2021 - Present
+- Maintained a fleet of 50+ Linux servers, ensuring security updates and patching with 99.9% availability.
+- Developed automated backup shell scripts, reducing backup time by 2 hours and verifying backups weekly.
+- Coordinated the migration of server rooms to a cloud-hosted VPS provider.
+- Resolved tier 2 network and database outages, performing root-cause analysis.
+
+Systems Support Specialist | Global Solutions | Austin, TX
+June 2019 - July 2021
+- Configured user access controls, directory groups, and network file sharing permissions.
+- Conducted regular hardware diagnostics and repaired physical rack servers.
+- Responded to system alerts (Zabbix) and resolved disk-space and CPU bottlenecks.
+
+EDUCATION
+Bachelor of Science in Computer Information Systems
+Texas State University | 2015 - 2019

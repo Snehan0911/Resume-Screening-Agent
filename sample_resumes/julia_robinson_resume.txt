@@ -1,0 +1,31 @@
+JULIA ROBINSON
+Email: julia.robinson@email.com | Phone: 555-0111 | New York, NY
+Portfolio: julia设计的.com | LinkedIn: linkedin.com/in/juliarobinson
+
+PROFESSIONAL SUMMARY
+UI/UX Product Designer with 5 years of experience creating digital experiences for web and mobile applications. Expert in user research, wireframing, high-fidelity prototyping, and designing comprehensive design systems. Passionate about centering product decisions around user needs.
+
+DESIGN SKILLS & TOOLS
+- UI/UX Design: User Journeys, Wireframing, Prototyping, Usability Testing, Visual Design
+- Software & Tools: Figma, Sketch, Adobe XD, Illustrator, Photoshop, Zeplin
+- Collaboration: Agile/Scrum, Product Management, Design Handoff
+- Code Knowledge: Understanding of HTML5 and CSS3 (design translation)
+
+PROFESSIONAL EXPERIENCE
+
+Senior Product Designer | DesignTech Studio | New York, NY
+March 2022 - Present
+- Conducted user interviews and usability tests with 40+ participants, translating insights into a restructured dashboard layout.
+- Developed a cross-platform design system in Figma, reducing front-end development implementation inconsistencies by 25%.
+- Designed user flows, wireframes, and interactive prototypes for 5 major feature launches.
+- Facilitated collaborative design workshops with product managers and engineering leads.
+
+Product Designer | RetailHub | New York, NY
+July 2020 - February 2022
+- Redesigned checkout flow for an e-commerce platform, leading to a 12% increase in completed checkouts.
+- Created pixel-perfect visual specifications and interactive transitions for mobile applications.
+- Maintained Sketch component library.
+
+EDUCATION
+Bachelor of Fine Arts in Graphic Design
+School of Visual Arts, NY | 2016 - 2020

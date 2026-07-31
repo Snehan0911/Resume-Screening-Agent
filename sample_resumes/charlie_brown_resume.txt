@@ -1,0 +1,33 @@
+CHARLIE BROWN
+Email: charlie.brown@email.com | Phone: 555-0188 | Chicago, IL
+GitHub: github.com/charliebrown | Portfolio: charliecodes.dev
+
+PROFESSIONAL SUMMARY
+Passionate Junior Frontend Engineer with 1.5 years of professional experience building responsive, user-friendly web interfaces. Proficient in HTML, CSS, JavaScript, and React.js. Eager to grow my full-stack skills, particularly in backend development (Python/Node).
+
+TECHNICAL SKILLS
+- Languages: JavaScript (ES6+), HTML5, CSS3, basic Python
+- Libraries & Frameworks: React.js, Next.js, Redux Toolkit, TailwindCSS, Bootstrap
+- Tools: Git, VS Code, npm, Webpack, Figma (UI design conversion)
+
+PROFESSIONAL EXPERIENCE
+
+Junior Frontend Developer | PixelPerfect Solutions | Chicago, IL
+January 2025 - Present
+- Developed and polished 12+ responsive landings and web pages using React and TailwindCSS.
+- Collaborated with UI/UX designers to translate Figma design mockups into high-fidelity code.
+- Optimized frontend assets, improving Google Lighthouse performance scores from 70 to 92.
+- Integrated third-party RESTful APIs and managed application state using Redux Toolkit.
+
+Frontend Intern | CodeCraft Studio | Chicago, IL
+July 2024 - December 2024
+- Supported senior developers in maintaining and fixing bugs on a customer portal built in React.
+- Wrote responsive styles and layouts using CSS Grid and Flexbox.
+- Implemented unit tests for UI components using Jest and React Testing Library.
+
+EDUCATION
+React & Frontend Engineering Bootcamp
+General Assembly | 2024 (12-Week Intensive Program)
+
+Associate Degree in Web Development
+Harold Washington College | 2022 - 2024

@@ -1,0 +1,36 @@
+DIANA PRINCE
+Email: diana.prince@email.com | Phone: 555-0155 | Arlington, VA
+LinkedIn: linkedin.com/in/dianaprincepm
+
+PROFESSIONAL SUMMARY
+Senior Technical Project Manager and certified Scrum Master with 8 years of experience leading agile software development teams. Skilled in sprint planning, backlog grooming, risk mitigation, and cross-functional team leadership. Proven track record of delivering complex enterprise software projects on time and within budget.
+
+TECHNICAL SKILLS & CERTIFICATIONS
+- Certifications: PMP (Project Management Professional), CSM (Certified ScrumMaster), Safe Agilist
+- Project Management: Jira, Confluence, MS Project, Trello, Asana
+- Agile Methodologies: Scrum, Kanban, SAFe (Scaled Agile Framework)
+- Languages/Tech: Understanding of Python, Java, SQL (non-coding, conceptual level)
+
+PROFESSIONAL EXPERIENCE
+
+Senior Technical Project Manager | Vanguard Systems | McLean, VA
+October 2021 - Present
+- Facilitate agile ceremonies (daily standups, sprint planning, retrospective, sprint reviews) for 3 cross-functional development teams (total 22 engineers).
+- Manage project budgets up to $3M, tracking milestones and resource allocation.
+- Coordinate with product managers and business stakeholders to translate product roadmaps into technical backlogs in Jira.
+- Reduced project delivery cycle time by 20% by identifying bottleneck dependencies and streamlining team sprint goals.
+
+Agile Project Manager | CoreTech Software | Reston, VA
+May 2018 - September 2021
+- Guided a team of 8 developers and QA testers through SAFe Agile transformations.
+- Managed release planning and communicated project progress metrics (velocity, burn-down charts) to executive management.
+- Coordinated user acceptance testing (UAT) and signed off on deployment releases.
+
+Business Analyst | Solutions Group | Fairfax, VA
+June 2016 - April 2018
+- Gathered software requirements from clients and documented them as user stories.
+- Conducted manual testing on release versions to ensure business requirements were met.
+
+EDUCATION
+Bachelor of Science in Business Administration
+George Mason University | 2012 - 2016

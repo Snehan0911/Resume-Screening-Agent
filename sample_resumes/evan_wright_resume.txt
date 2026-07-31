@@ -1,0 +1,34 @@
+EVAN WRIGHT
+Email: evan.wright@email.com | Phone: 555-0103 | Denver, CO
+GitHub: github.com/evanwrightdevops | LinkedIn: linkedin.com/in/evanwright
+
+PROFESSIONAL SUMMARY
+DevOps Engineer with 4 years of experience specializing in automation, containerization, and cloud infrastructure management. Expert in designing CI/CD pipelines, managing Kubernetes clusters, and maintaining cloud services on AWS. Strong advocate for Infrastructure as Code (IaC) and observability.
+
+TECHNICAL SKILLS
+- Cloud Platforms: Amazon Web Services (AWS - VPC, EC2, ECS, EKS, RDS, S3, IAM, CloudWatch)
+- Containerization & Orchestration: Docker, Kubernetes, Helm
+- Infrastructure as Code: Terraform, Ansible
+- CI/CD: Jenkins, GitLab CI, GitHub Actions
+- Languages & Scripting: Python (scripting & automation), Bash, Go
+- Monitoring & Logging: Prometheus, Grafana, ELK Stack (Elasticsearch, Logstash, Kibana)
+
+PROFESSIONAL EXPERIENCE
+
+DevOps Engineer | CloudNative Corp | Denver, CO
+January 2023 - Present
+- Maintained production infrastructure on AWS, achieving 99.99% uptime through auto-scaling and multi-AZ deployments.
+- Re-architected CI/CD pipelines in GitLab CI, reducing build and deployment times by 35%.
+- Implemented Terraform for managing infrastructure as code across dev, staging, and production environments.
+- Developed Python scripting tools to automate cleanup of unused cloud resources, saving $15K monthly.
+
+Infrastructure Engineer | NetSecure LLC | Boulder, CO
+September 2021 - December 2022
+- Managed Docker containers and deployed containerized Python applications on AWS ECS.
+- Automated system updates and software configurations using Ansible playbooks.
+- Set up Prometheus and Grafana alerts, improving incident response times by 30%.
+- Configured logging dashboards in Kibana to assist developers in troubleshooting application errors.
+
+EDUCATION
+Bachelor of Science in Information Technology
+Colorado State University | 2017 - 2021

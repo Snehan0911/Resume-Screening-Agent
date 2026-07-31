@@ -162,6 +162,21 @@ We have pre-configured a test directory containing **11 mock candidate resumes**
 | **Ian Malcolm** | [ian_malcolm_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/ian_malcolm_resume.txt) | Sysadmin | Linux, Server Rack, Bash Scripting | **0-15** | **Reject** |
 | **Julia Robinson** | [julia_robinson_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/julia_robinson_resume.txt) | UI/UX Designer | Figma, Sketch, Visual Prototyping | **0-10** | **Reject** |
 
+### 📋 Step-by-Step Demo Flow
+To conduct a demo screening run, follow these steps:
+1.  **Open the Web App**: Launch your browser and navigate to `http://localhost:5173`.
+2.  **Verify Backend Connection**: Confirm that the top-right indicator shows `● Agents Active`. If it shows an error, verify the backend is running.
+3.  **Review the Job Description**: The dashboard pre-fills a standard **Senior Full-Stack Engineer** job description. You can leave it as is or customize it.
+4.  **Upload Resumes**: 
+    *   Click on the dashed uploader card or drag and drop files.
+    *   Select candidates from the [sample_resumes/](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes) folder (e.g., select `alice_smith_resume.txt`, `fiona_gallagher_resume.txt`, and `diana_prince_resume.txt`).
+5.  **Execute Screening**: Click the glowing **Run Multi-Agent Screening** button.
+6.  **Monitor Live Agent Logs**: A log terminal will appear displaying the active steps from each agent in real-time.
+7.  **Explore Final Dashboard**: 
+    *   Review the candidate leaderboard ranked by final score.
+    *   Select a candidate (e.g., *Alice Smith*) and explore their **Score Card & Fit** analysis, **Custom Interview Questions**, **QA Agent Transcript**, and **Parsed Profile**.
+8.  **Export Results**: Click **Export JSON** to download a complete, structured JSON report of the screening task.
+
 ---
 
 ## 🛠️ Troubleshooting Guide

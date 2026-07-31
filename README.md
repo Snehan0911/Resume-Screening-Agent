@@ -1,5 +1,7 @@
 # 🚀 TalentStream AI: Collaborative Multi-Agent Resume Screening System
 
+[![CI/CD Pipeline](https://github.com/Snehan0911/Resume-Screening-Agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Snehan0911/Resume-Screening-Agent/actions/workflows/ci.yml)
+
 ![TalentStream AI Cover Banner](./assets/banner.png)
 
 ## 📖 Introduction & Cover Page
@@ -192,6 +194,8 @@ Here is the directory layout of your clean Python workspace:
 
 ```
 /Resume-Screening-Agent
+  ├── .github/workflows/
+  │    └── ci.yml                 # GitHub Actions CI pipeline configuration
   ├── assets/
   │    └── banner.png             # The high-resolution project banner image
   ├── sample_resumes/             # Folder containing the 11 mock candidate resumes
@@ -283,6 +287,13 @@ Here is the directory layout of your clean Python workspace:
 *   **Unit & Parser Tests 📄**: Verifies document readers against text extraction functions.
 *   **Mathematical Vector Similarity Tests 📊**: Asserts that `TfidfVectorizer` and Cosine Similarity equations perform as expected.
 *   **API call Isolation & Mocking 🛡️**: Patches the Google Gemini API generative model responses to isolate the pipeline orchestrator, testing schema validations without internet calls or rate-limiting.
+
+---
+
+### ⚙️ 6. [.github/workflows/ci.yml](file:///d:/Projects/Resume%20Screening%20Agent/.github/workflows/ci.yml)
+*   **Triggers specifications ⚡**: Automates workflow triggers on every push and pull request targeted to the `main` branch.
+*   **Multi-Version Python Testing Matrix 🐍**: Sets up automated build executors running on Ubuntu virtual machines across multiple Python versions (3.10 and 3.11).
+*   **Dependencies Caching & Setup 💾**: Caches Python pip packages to speed up consecutive runtimes, installs project requirements, and executes `pytest tests/` in a clean environment.
 
 ---
 

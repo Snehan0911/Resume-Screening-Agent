@@ -1,6 +1,41 @@
 # 🚀 TalentStream AI: Collaborative Multi-Agent Resume Screening System
 
-TalentStream AI is a premium full-stack resume screening and evaluation platform. It utilizes a collaborative pipeline of **4 specialized AI agents** to parse candidate resumes, review qualifications against a target Job Description, audit scores to prevent bias or hallucinations, and rank the candidate pool with customized interview questions.
+![TalentStream AI Cover Banner](./assets/banner.png)
+
+## 📖 Introduction & Cover Page
+
+Welcome to **TalentStream AI** - a state-of-the-art collaborative Multi-Agent Resume Screening platform designed to automate, optimize, and audit candidate resume profiles against target Job Descriptions. 
+
+This platform represents **honest engineering** designed to solve a critical HR challenge: screening candidates at scale while preventing AI score inflation, hallucinations, and parsing errors through cooperative, multi-step verification.
+
+*   **Platform Version**: v1.0.0
+*   **Target Core AI**: Gemini 3.5 Flash Model (`gemini-3.5-flash`)
+*   **System Layout**: FastAPI (Python 3.11) Backend + Vite React (TypeScript) Frontend
+
+---
+
+## ⚡ Quick Start Details
+
+Get the entire project running in **3 simple steps**:
+
+1.  **Configure API Credentials**:
+    *   Create a file named `.env` in the `backend/` directory.
+    *   Paste your Gemini API key: `GEMINI_API_KEY=your_key_here`
+2.  **Fire Up the Backend API**:
+    *   Open your terminal in `backend/` and run:
+        ```bash
+        python -m venv .venv
+        .\.venv\Scripts\Activate.ps1   # Windows
+        pip install -r requirements.txt
+        python -m uvicorn app.main:app --port 8000
+        ```
+3.  **Fire Up the Frontend Dashboard**:
+    *   Open another terminal in `frontend/` and run:
+        ```bash
+        npm install --cache D:\npm-cache --no-audit --no-fund
+        npm run dev
+        ```
+    *   Open your browser to `http://localhost:5173`.
 
 ---
 
@@ -56,108 +91,186 @@ Our agentic pipeline is built as a custom, lightweight workflow using Python and
 
 ---
 
-## 🔧 Setup and Installation
+## 💻 How to Run the Platform
 
-### 📋 Prerequisites
-*   **Python 3.10+** (tested on Python 3.11)
-*   **Node.js 18+** & **npm**
+Here is the step-by-step procedure to boot the servers from scratch:
 
----
-
-### 📂 1. Backend Setup
-
+### 📂 Backend API Server Setup
 1.  Navigate to the backend directory:
     ```bash
     cd backend
     ```
-2.  Create and activate a Python virtual environment:
+2.  Create the virtual environment:
+    ```bash
+    python -m venv .venv
+    ```
+3.  Activate the environment:
     *   **Windows (PowerShell)**:
         ```powershell
-        python -m venv .venv
         .\.venv\Scripts\Activate.ps1
         ```
     *   **macOS / Linux**:
         ```bash
-        python3 -m venv .venv
         source .venv/bin/activate
         ```
-3.  Install the dependencies:
+4.  Install the required dependencies:
     ```bash
     pip install -r requirements.txt
     ```
-4.  Configure the environment variables:
-    *   Create a file named `.env` in the `backend` directory.
-    *   Open `.env` and paste your Google Gemini API Key:
-        ```env
-        GEMINI_API_KEY=your_gemini_api_key_here
-        ```
-
-5.  Launch the FastAPI server:
-    ```bash
-    python -m uvicorn app.main:app --reload --port 8000
+5.  Configure your environment file `backend/.env`:
+    ```env
+    GEMINI_API_KEY=your_gemini_api_key_here
     ```
-    *   The API will start on: `http://localhost:8000`
-    *   Interactive Swagger API docs: `http://localhost:8000/docs`
-
----
-
-### 💻 2. Frontend Setup
-
-1.  Navigate to the frontend directory:
+6.  Start the FastAPI server:
     ```bash
-    cd ../frontend
+    python -m uvicorn app.main:app --port 8000
     ```
-2.  Install npm packages:
+    *   Check API health at: `http://localhost:8000/api/health`
+
+### 💻 React Frontend Setup
+1.  Open a new terminal window and navigate to the frontend folder:
+    ```bash
+    cd frontend
+    ```
+2.  Install packages (using the cache redirect to bypass space limits on C:):
     ```bash
     npm install --cache D:\npm-cache --no-audit --no-fund
     ```
-3.  Start the Vite React development server:
+3.  Boot the Vite development server:
     ```bash
     npm run dev
     ```
-    *   The user interface will open at: `http://localhost:5173`
+4.  Open the web dashboard: **`http://localhost:5173`**.
 
 ---
 
-## 📐 Design Decisions & Tradeoffs
+## 🧪 Sample Test Cases & Expected Outcomes
 
-### 🏎️ 1. Custom Light-weight Agent Loop vs. Frameworks (CrewAI/AutoGen)
-*   **Choice**: Implemented a custom agent orchestrator using pure Python and the Gemini SDK.
-*   **Tradeoff**: While heavy frameworks provide pre-built abstractions, they introduce large dependency trees, run slowly, fail frequently on Windows due to package locking, and have opaque execution flows. Building custom agent classes using Gemini's **structured outputs** is 10x faster, fully reproducible, and allows detailed terminal logs to be streamed to the client in real-time.
+We have pre-configured a test directory containing **11 mock candidate resumes** of varying alignments. Run a test batch in the UI and verify that the scoring and recommendations match the expected classifications below:
 
-### 🛡️ 2. Double-Agent Scoring Validation (Evaluator & QA)
-*   **Choice**: The initial screening scores are reviewed by a separate Quality Assurance agent.
-*   **Tradeoff**: Running a QA validation step doubles the LLM tokens used per resume, but it significantly reduces hallucinations and score inflations. The QA agent is instructed to audit candidate timelines (e.g., catching a candidate claiming 5 years of Python when their job experience dates only add up to 2 years), ensuring fair, data-backed candidate shortlisting.
+| Candidate Name | File Name | Profile Type | Key Skills | Expected Score | Expected Recommendation |
+| :--- | :--- | :--- | :--- | :---: | :---: |
+| **Alice Smith** | [alice_smith_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/alice_smith_resume.txt) | Senior Full-Stack | Python, FastAPI, React, TS, Docker, AWS | **90+** | **Shortlist** |
+| **Kevin Baker** | [kevin_baker_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/kevin_baker_resume.txt) | Mid Full-Stack | Python, FastAPI, React, TS, Docker | **80-89** | **Shortlist / Interview** |
+| **Fiona Gallagher** | [fiona_gallagher_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/fiona_gallagher_resume.txt) | Senior Backend | Python, FastAPI, PostgreSQL, Celery | **70-79** | **Interview** |
+| **Helen Vance** | [helen_vance_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/helen_vance_resume.txt) | Senior Frontend | React, Next.js, TypeScript, Vite | **65-75** | **Interview** |
+| **Bob Jones** | [bob_jones_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/bob_jones_resume.txt) | Data Scientist | ML, PySpark, Pandas, Airflow | **40-55** | **Reject** |
+| **Evan Wright** | [evan_wright_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/evan_wright_resume.txt) | DevOps Eng. | AWS, Kubernetes, Terraform, Ansible | **40-50** | **Reject** |
+| **Charlie Brown** | [charlie_brown_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/charlie_brown_resume.txt) | Junior Frontend | React, TailwindCSS, basic JS | **35-49** | **Reject** |
+| **George Costanza** | [george_costanza_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/george_costanza_resume.txt) | Junior Web Dev | HTML, CSS, Vanilla JS, Bootstrap | **15-30** | **Reject** |
+| **Diana Prince** | [diana_prince_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/diana_prince_resume.txt) | Project Manager | Jira, Agile, PMP (Non-coding) | **0-15** | **Reject** |
+| **Ian Malcolm** | [ian_malcolm_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/ian_malcolm_resume.txt) | Sysadmin | Linux, Server Rack, Bash Scripting | **0-15** | **Reject** |
+| **Julia Robinson** | [julia_robinson_resume.txt](file:///d:/Projects/Resume%20Screening%20Agent/sample_resumes/julia_robinson_resume.txt) | UI/UX Designer | Figma, Sketch, Visual Prototyping | **0-10** | **Reject** |
 
-### 📯 3. Client Polling via FastAPI BackgroundTasks
-*   **Choice**: Screenings run in background threads, and the client polls the status endpoint every 1.5 seconds.
-*   **Tradeoff**: Using websockets or SSE (Server-Sent Events) would provide push updates, but client polling is much easier to debug, extremely robust on standard HTTP protocols, and handles connection dropouts gracefully by resuming logs from memory.
+---
+
+## 🛠️ Troubleshooting Guide
+
+### 1. `type object 'dummy' has no attribute 'model_json_schema'`
+*   **Cause**: The local Python virtual environment has Pydantic v1 installed, but the Google Gemini SDK expects Pydantic v2 to compile structured outputs.
+*   **Solution**: Stop the uvicorn server and run:
+    ```powershell
+    .\.venv\Scripts\pip install "pydantic>=2.0.0"
+    ```
+    Verify it upgrades Pydantic successfully, then restart uvicorn.
+
+### 2. `404 This model models/gemini-2.5-flash is no longer available`
+*   **Cause**: The older `gemini-2.5-flash` model has been deprecated in Google AI Studio.
+*   **Solution**: Double-check that [backend/app/agents.py](file:///d:/Projects/Resume Screening Agent/backend/app/agents.py) has `MODEL_NAME` set to `"gemini-3.5-flash"`. This points to the latest active model on your system.
+
+### 3. Port `8000` is already in use (`only one usage of each socket address is permitted`)
+*   **Cause**: A stale uvicorn/python process is running in the background from a previous execution.
+*   **Solution**: Open PowerShell and terminate the stale process:
+    ```powershell
+    Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Stop-Process -Id {$_.OwningProcess} -Force
+    ```
+
+### 4. `JavaScript heap out of memory` during frontend setup
+*   **Cause**: Node.js has run out of memory during package unpacking because the C: drive is almost full, preventing the Windows paging file from growing.
+*   **Solution**: Clean the npm cache and allocate a temporary cache directory on the D: drive:
+    ```bash
+    npm install --cache D:\npm-cache --no-audit --no-fund
+    ```
+
+---
+
+## 📦 Assets & Folder Directory Structure
+
+Here is the directory layout of the assets and code files in this workspace:
+
+```
+/Resume-Screening-Agent
+  ├── assets/
+  │    └── banner.png             # The high-resolution project banner image
+  ├── backend/
+  │    ├── app/
+  │    │    ├── __init__.py       # Package marker file
+  │    │    ├── main.py           # FastAPI server routers and threading pipeline
+  │    │    ├── agents.py         # 4 Agents configurations (Parser, Evaluator, QA, Ranking)
+  │    │    ├── parser.py         # File content text parsers (PDF, DOCX, TXT)
+  │    │    └── schemas.py        # Pydantic data schemas representing outputs
+  │    ├── .env                   # Local keys configuration (GEMINI_API_KEY)
+  │    ├── .env.example           # Reference configuration variables file
+  │    └── requirements.txt       # Backend Python packages file
+  ├── frontend/
+  │    ├── package.json           # Frontend framework version configurations
+  │    ├── src/
+  │    │    ├── App.tsx           # React UI core rendering logic
+  │    │    ├── index.css         # Dark theme style sheets with glassmorphism
+  │    │    └── main.tsx          # Client loader file
+  │    └── vite.config.ts         # Vite bundler properties
+  ├── sample_resumes/             # Folder containing the 11 mock candidate resumes
+  ├── .gitignore                  # Global Git ignore specifications
+  └── README.md                   # Complete system documentation
+```
+
+---
+
+## 🌐 How to Link and Push this Project to GitHub
+
+To upload this commit to your public GitHub profile:
+
+1.  **Create a Repository on GitHub**:
+    *   Go to [github.com/new](https://github.com/new).
+    *   Enter a name for your repository (e.g. `Resume-Screening-Agent`).
+    *   **Leave "Initialize this repository with" unchecked** (do not add a README, gitignore, or license).
+    *   Click **Create repository**.
+2.  **Run these commands in your PowerShell/Terminal**:
+    ```powershell
+    # Rename default branch to 'main'
+    git branch -M main
+
+    # Link your local project to your new GitHub repository
+    # (Replace <username> and <repo> with your GitHub details)
+    git remote add origin https://github.com/<username>/<repo>.git
+
+    # Push files to your repository
+    git push -u origin main
+    ```
 
 ---
 
 ## 🔍 Codebase Explained Line-By-Line
 
-Here is a complete, line-by-line and section-by-section breakdown of every source file in the project, annotated with structural details.
+Here is a complete, line-by-line and section-by-section breakdown of every source file in the project.
 
 ---
 
 ### 🐍 Backend: FastAPI Python Server
 
 #### 📄 1. [backend/requirements.txt](file:///d:/Projects/Resume%20Screening%20Agent/backend/requirements.txt)
-This file defines the Python dependencies required for the backend environment.
 *   **Line 1 (`fastapi>=0.100.0`) 🌐**: Installs FastAPI, our web framework, which handles all API routing, data validation, and asynchronous features.
 *   **Line 2 (`uvicorn>=0.22.0`) ⚡**: Installs Uvicorn, an ASGI (Asynchronous Server Gateway Interface) web server used to run the FastAPI app.
-*   **Line 3 (`google-generativeai>=0.8.3`) 🧠**: Installs the Google Gemini Python SDK, allowing our backend to connect to Gemini models (`gemini-2.5-flash`) for agent analysis.
+*   **Line 3 (`google-generativeai>=0.8.3`) 🧠**: Installs the Google Gemini Python SDK, allowing our backend to connect to Gemini models (`gemini-3.5-flash`) for agent analysis.
 *   **Line 4 (`pypdf>=3.9.0`) 📂**: Installs PyPDF, a clean library used to read and extract text strings from PDF resumes.
 *   **Line 5 (`python-docx>=0.8.11`) 📝**: Installs python-docx, which lets us parse text and tables out of Microsoft Word (`.docx`) resume formats.
 *   **Line 6 (`python-multipart>=0.0.6`) 📥**: Enables FastAPI to parse incoming HTTP Multipart Form Data (necessary for handle uploading files).
 *   **Line 7 (`python-dotenv>=1.0.0`) 🔑**: Installs python-dotenv to read and inject keys from our local `.env` configuration file into environment variables.
-*   **Line 8 (`pydantic>=1.10.0,<2.0.0`) 🛡️**: Installs Pydantic v1. Pydantic is used for request/response schemas and to enforce Gemini's structured JSON outputs.
+*   **Line 8 (`pydantic>=2.0.0`) 🛡️**: Installs Pydantic v2. Pydantic is used for request/response schemas and to enforce Gemini's structured JSON outputs.
 
 ---
 
 #### 🧪 2. [backend/app/schemas.py](file:///d:/Projects/Resume%20Screening%20Agent/backend/app/schemas.py)
-This module defines the structured data models using Pydantic. These schemas act as validation systems for the API and are passed directly to the Gemini API to enforce JSON schemas.
 *   **Lines 1-2 📥**: Import `BaseModel` and `Field` from `pydantic` for writing fields, and `List`, `Optional` from `typing` for type annotations.
 *   **Lines 4-11 (`CandidateProfile`) 👤**: Models the extracted resume details.
     *   `name` 📛: Enforces extraction of the candidate's full name.
@@ -199,7 +312,6 @@ This module defines the structured data models using Pydantic. These schemas act
 ---
 
 #### 💾 3. [backend/app/parser.py](file:///d:/Projects/Resume%20Screening%20Agent/backend/app/parser.py)
-This module contains file parser helper functions that extract plain text from various file formats.
 *   **Lines 1-3 📂**: Import `os` for path parsing, `pypdf` for reading PDFs, and `docx` for Word documents.
 *   **Lines 5-16 (`parse_pdf`) 📄**: Extracts text from a PDF.
     *   Initializes empty `text` string.
@@ -220,10 +332,9 @@ This module contains file parser helper functions that extract plain text from v
 ---
 
 #### 🧠 4. [backend/app/agents.py](file:///d:/Projects/Resume%20Screening%20Agent/backend/app/agents.py)
-This module implements the core Multi-Agent screening pipeline. It configures the Gemini API client and triggers specific agents.
 *   **Lines 1-8 🤖**: Import required modules (`os`, `json`, `logging` for logging, `google.generativeai` as `genai`, `dotenv`, and our Pydantic schemas).
 *   **Lines 10-18 🔑**: Triggers `load_dotenv()` to read the `.env` file, configures the Gemini client with the key, and handles warnings if the key is missing.
-*   **Lines 20-24 (`get_model`) 🧠**: Returns a `genai.GenerativeModel` instance using `gemini-2.5-flash` by default.
+*   **Lines 20-24 (`get_model`) 🧠**: Returns a `genai.GenerativeModel` instance using `gemini-3.5-flash` by default.
 *   **Lines 26-62 (`ResumeParserAgent`) 🔍**: Parser agent class.
     *   `run()` accepts the raw document text.
     *   Constructs a system prompt instructing Gemini to act as a parser, extract contact details, work history, and skills.
@@ -246,7 +357,6 @@ This module implements the core Multi-Agent screening pipeline. It configures th
 ---
 
 #### ⚡ 5. [backend/app/main.py](file:///d:/Projects/Resume%20Screening%20Agent/backend/app/main.py)
-This is the FastAPI application script. It sets up web routes, accepts file uploads, executes the agent pipeline in background threads, and tracks task progress.
 *   **Lines 1-13 📡**: Import web modules (FastAPI, UploadFile, BackgroundTasks, CORSMiddleware) and our agent classes.
 *   **Lines 17-27 🌐**: Initializes the `FastAPI` instance and sets up CORS middleware to allow the frontend (running on port 5173) to communicate with the API.
 *   **Lines 31-33 💾**: Sets up `TASKS_DB`, an in-memory dictionary to store task progress, logs, and screening results. Uses `threading.Lock` (`DB_LOCK`) to prevent race conditions during updates.
@@ -276,7 +386,6 @@ This is the FastAPI application script. It sets up web routes, accepts file uplo
 ### 💻 Frontend: React Web Dashboard
 
 #### 📦 6. [frontend/package.json](file:///d:/Projects/Resume%20Screening%20Agent/frontend/package.json)
-Configures the npm package dependencies and run scripts.
 *   **Lines 6-11 (`scripts`) 🛠️**: Configures dev server command (`vite`), production compiler (`tsc && vite build`), and preview tools.
 *   **Lines 12-15 (`dependencies`) 📦**: Installs React 18, React DOM 18, and `lucide-react` for beautiful SVG icons.
 *   **Lines 16-25 (`devDependencies`) ⚙️**: Configures developer libraries including TypeScript compiler (`typescript`), types definitions, and Vite build engine (`vite`, `@vitejs/plugin-react`).
@@ -284,7 +393,6 @@ Configures the npm package dependencies and run scripts.
 ---
 
 #### 🎨 7. [frontend/src/index.css](file:///d:/Projects/Resume%20Screening%20Agent/frontend/src/index.css)
-This stylesheet defines our design system. It uses custom CSS variables to create a dark-themed glassmorphism interface.
 *   **Line 1 🔤**: Imports Google Fonts: *Outfit* (for display headings) and *Plus Jakarta Sans* (for body text).
 *   **Lines 3-23 (`:root`) 🎨**: Sets up HSL color variables for dark backgrounds, glowing purple/cyan primaries, status colors, and borders.
 *   **Lines 25-40 🧼**: Basic resets and scrollbar styles to fit our dark-theme dashboard.
@@ -298,7 +406,6 @@ This stylesheet defines our design system. It uses custom CSS variables to creat
 ---
 
 #### 💻 8. [frontend/src/App.tsx](file:///d:/Projects/Resume%20Screening%20Agent/frontend/src/App.tsx)
-This is the main React component. It manages states, handles resume uploads, polls the API, and renders the dashboard.
 *   **Lines 1-22 📦**: Imports React hooks and Lucide SVG icons.
 *   **Lines 24-70 📂**: Declares TypeScript interfaces (`ScorecardCategory`, `Candidate`, `CandidateRankingDetail`, `RankingReport`) to match the backend API's JSON output.
 *   **Lines 72-84 (`DEFAULT_JOB_DESCRIPTION`) 📄**: Pre-populates the UI with a Senior Full-Stack Engineer job description for easy testing.
@@ -333,3 +440,11 @@ This is the main React component. It manages states, handles resume uploads, pol
     *   **Custom Interview Questions**: Displays the 3-4 tailored questions generated by the Ranking Agent.
     *   **QA Agent Transcript**: Renders the QA Agent's audit trail, adjustments, and reasoning.
     *   **Extracted Profile**: Shows the parsed skills list, work history list, and education credentials.
+
+---
+
+## ✍️ Author Information
+
+*   **Author**: Sneha Nuchha
+*   **Email**: [snehanuchha@gmail.com](mailto:snehanuchha@gmail.com)
+*   **Role**: AI Engineering Developer

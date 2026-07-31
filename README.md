@@ -53,6 +53,16 @@ Get the entire project running in **3 simple steps**:
         * `--output`: Filepath where the output should be saved.
         * `--format`: Output format, choosing from `json`, `csv`, `md`. (Default: `json`).
         * `--model`: The Gemini core model to use. (Default: `gemini-3.5-flash`).
+    *   **Option C: Run in a Docker Container**:
+        Build and run the Streamlit dashboard in a container:
+        ```bash
+        # Build the container image
+        docker build -t talentstream-ai .
+        
+        # Run the container (injecting your local API key)
+        docker run -p 8501:8501 --env-file .env talentstream-ai
+        ```
+        Open your browser to: **`http://localhost:8501`**.
 
 4.  **Run the Testing Suite**:
     *   Verify text parsing, NLP similarities, and schema serialization:
@@ -193,6 +203,7 @@ Here is the directory layout of your clean Python workspace:
   ├── pipeline.py                # Text extraction, TF-IDF + Cosine Similarity, AI Agents, & Core Orchestrator
   ├── cli.py                     # Command-line screening utility (outputs JSON, CSV, or Markdown)
   ├── app.py                     # Streamlit web user interface dashboard (with CSV/JSON/MD exports)
+  ├── Dockerfile                 # Containerized image setup config
   └── README.md                  # Complete system documentation
 ```
 

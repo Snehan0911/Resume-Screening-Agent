@@ -1,8 +1,13 @@
 import os
+import sys
 import tempfile
 import pytest
 import json
 from unittest.mock import MagicMock, patch
+
+# Ensure project root is in python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from pipeline import (
     parse_txt,
     extract_text_from_file,

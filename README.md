@@ -1,12 +1,12 @@
-# 🚀 TalentStream AI: Collaborative Multi-Agent Resume Screening System
+# 🚀 Resume Screening Agent: Collaborative Multi-Agent AI System
 
 [![CI/CD Pipeline](https://github.com/Snehan0911/Resume-Screening-Agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Snehan0911/Resume-Screening-Agent/actions/workflows/ci.yml)
 
-![TalentStream AI Cover Banner](./assets/banner.png)
+![Resume Screening Agent Cover Banner](./assets/banner.png)
 
 ## 📖 Introduction & Cover Page
 
-Welcome to **TalentStream AI** - a state-of-the-art collaborative Multi-Agent Resume Screening platform designed to automate, optimize, and audit candidate resume profiles against target Job Descriptions. 
+Welcome to **Resume Screening Agent** - a state-of-the-art collaborative Multi-Agent Resume Screening platform designed to automate, optimize, and audit candidate resume profiles against target Job Descriptions. 
 
 This platform represents **honest engineering** designed to solve a critical HR challenge: screening candidates at scale while preventing AI score inflation, hallucinations, and parsing errors through cooperative, multi-step verification.
 
@@ -59,10 +59,10 @@ Get the entire project running in **3 simple steps**:
         Build and run the Streamlit dashboard in a container:
         ```bash
         # Build the container image
-        docker build -t talentstream-ai .
+        docker build -t resume-screening-agent .
         
         # Run the container (injecting your local API key)
-        docker run -p 8501:8501 --env-file .env talentstream-ai
+        docker run -p 8501:8501 --env-file .env resume-screening-agent
         ```
         Open your browser to: **`http://localhost:8501`**.
 
@@ -137,6 +137,91 @@ We implement a mathematical keyword/conceptual overlap check using **Scikit-Lear
 
 ---
 
+## 🎨 UI/UX Design System & Interface Architecture
+
+**Resume Screening Agent** features an **enterprise-grade, human-centric UI/UX design system** built to eliminate cognitive overload for hiring managers, recruiters, and candidates. The design combines **glassmorphism**, a **cyber-slate dark theme**, and **high-contrast visual cues** for instant scannability and fast decision-making.
+
+A standalone, zero-dependency interactive prototype is available at [ui_ux_design.html](file:///d:/Projects/Resume%20Screening%20Agent/ui_ux_design.html).
+
+---
+
+### 🌈 Color Palette & Design Tokens
+
+The color system is engineered for maximum readability, semantic visual hierarchy, and accessibility:
+
+| Token / Variable | Hex Value | RGBA Glow / Accent | Semantic Role & UI Application |
+| :--- | :--- | :--- | :--- |
+| `--bg-dark` | `#080c14` | Solid | Deep obsidian workspace background canvas |
+| `--bg-panel` | `#0e1526` | `rgba(14, 21, 38, 0.85)` | Elevated panels, glassmorphic headers, sticky top bar |
+| `--bg-card` | `#141e33` | Solid | Interactive candidate cards, score containers, metric tiles |
+| `--bg-card-hover` | `#1c2a47` | Solid | Hover and active focus state highlighting |
+| `--border-color` | `#223254` | Solid | Structural card boundaries and divider lines |
+| `--cyan` | `#38bdf8` | `rgba(56, 189, 248, 0.25)` | **Primary Accent**: Action buttons, active agent step, technical skills |
+| `--emerald` | `#34d399` | `rgba(52, 211, 153, 0.25)` | **Success / Shortlist**: Top scores (80-100%), verified claims, strengths |
+| `--amber` | `#fbbf24` | `rgba(251, 191, 36, 0.25)` | **Review / Warning**: Intermediate scores (50-79%), education pillars, QA audit |
+| `--rose` | `#fb7185` | `rgba(251, 113, 133, 0.25)` | **Critical / Reject**: Missing skills, low alignment (0-49%), gap tags |
+| `--purple` | `#c084fc` | Solid | **Agentic Intelligence**: Role fit indicators, interview question prompts |
+| `--text-main` | `#f8fafc` | Solid | High-contrast typography for candidate names, primary headings |
+| `--text-muted` | `#94a3b8` | Solid | Subheaders, metadata tags, secondary descriptions |
+
+---
+
+### 🔤 Typography & Font Hierarchy
+
+*   **Primary Typeface**: `Plus Jakarta Sans`, sans-serif (Google Fonts) — modern geometric font optimized for legibility across variable DPI screens.
+*   **Monospace & Numerical Metrics**: `JetBrains Mono` — for scores (`92/100`), percentages (`94%`), timeline dates, and runtime logs.
+*   **Scale & Weights**:
+    *   **Hero / Main Titles**: `20px - 24px` (Weight `800` Extrabold, letter-spacing `-0.5px`)
+    *   **Section Headers & Metrics**: `14px - 16px` (Weight `700` - `800`)
+    *   **Badges, Pills & Status Tags**: `11px - 12.5px` (Weight `600` - `700`, uppercase tracking `0.5px`)
+    *   **Body & Descriptions**: `12px - 13.5px` (Weight `400` - `500`, line-height `1.5`)
+
+---
+
+### 🖥️ 3-Column Modern Workspace Cockpit
+
+The user interface utilizes a responsive **3-Column Cockpit Layout** (`grid-template-columns: 340px 1fr 440px`), allowing hiring teams to manage the entire evaluation workflow on a single screen without context-switching:
+
+```
+┌───────────────────────────┬───────────────────────────────────┬───────────────────────────┐
+│  📋 Column 1: Job Spec    │  📊 Column 2: Upload & Rankings   │  🔍 Column 3: Inspector   │
+├───────────────────────────┼───────────────────────────────────┼───────────────────────────┤
+│ • Target Role & Level     │ • Drag & Drop Dropzone            │ • Candidate Profile Head  │
+│ • Editable JD Text Area   │ • Real-time Multi-Agent Ribbon    │ • 4-Pillar Scorecard Grid │
+│ • Core Skill Tag Cloud    │ • Filter Tabs (All/Shortlist/etc) │ • Key Strengths (Green)   │
+│ • Batch Action Buttons    │ • Ranked Candidate Cards          │ • Missing Gaps (Rose)     │
+│                           │ • Live Score Badges & Avatars     │ • QA Fact-Checker Audit   │
+│                           │                                   │ • Tailored Interview Kit  │
+└───────────────────────────┴───────────────────────────────────┴───────────────────────────┘
+```
+
+1.  **Left Column: Job Requirements & Core Competencies (340px)**:
+    *   Target role badge (`Senior Level`) and experience requirement indicators.
+    *   Editable multi-line textarea pre-loaded with comprehensive requirements.
+    *   Dynamic tag cloud displaying core competencies (`Python`, `FastAPI`, `React`, `Docker`, `AWS`, `PostgreSQL`, `Redis`).
+2.  **Center Column: Upload Dropzone & Ranked Leaderboard (Flexible 1fr)**:
+    *   **Interactive Dropzone**: Multi-format drag-and-drop supporting `.pdf`, `.docx`, and `.txt` files with visual pulse effects on hover/dragover.
+    *   **Multi-Agent Progress Ribbon**: Live visual step tracking animating from `Agent 1 (Parser)` ➔ `Agent 2 (Evaluator)` ➔ `Agent 3 (QA Auditor)` ➔ `Agent 4 (Interview Coach)`.
+    *   **Smart Filter Navigation**: One-click category chips displaying candidate counts (`All`, `Shortlist`, `Review`, `Rejected`).
+    *   **Candidate Ranking Cards**: Displays candidate avatar initials, current role, summary, score pill, and verdict tag.
+3.  **Right Column: Deep-Dive Candidate Inspector (440px)**:
+    *   **4-Pillar Scorecard Grid**: Individual metric cards for **Technical Skills**, **Experience Depth**, **Education Match**, and **Role Fit**, each featuring animated micro-progress bars.
+    *   **Strengths & Gaps Pills**: Color-coded badges highlighting verified technical matches (Emerald) and missing skill gaps (Rose).
+    *   **QA Fact-Checker Box**: Transparent audit summary displaying date timeline checks and TF-IDF mathematical vector similarity percentages.
+    *   **Tailored Interview Question Kit**: Category-specific interview prompts (*Technical Deep-Dive*, *Architecture & Scale*, *Behavioral Leadership*) tailored specifically to challenge the candidate's gaps.
+
+---
+
+### ✨ Micro-Interactions & UX Polish
+
+*   **⚡ Pulse & Status Glow Animations**: The active multi-agent pipeline step pulses using CSS `@keyframes pulse` with soft cyan box-shadow glows.
+*   **🖱️ Card Hover & Selection States**: Candidate cards slide smoothly (`transform: translateX(4px)`) on hover with cyan border illumination when selected.
+*   **📥 Seamless Drag-and-Drop Feedback**: Dropzone scales up (`scale(1.02)`) with a glowing border upon file dragover.
+*   **📊 Dynamic Client-Side Filtering & Sorting**: Instant re-rendering and count recalculation without page reload.
+*   **📱 Responsive & Accessible Layout**: Sticky navigation bar, fluid flex/grid wrappers, and high-contrast WCAG-compliant text.
+
+---
+
 ## 🧪 Sample Test Cases & Expected Outcomes
 
 We have pre-configured a test directory containing **11 mock candidate resumes** of varying alignments. Run a test batch in the UI and verify that the scoring matches the expected classifications:
@@ -207,6 +292,9 @@ Here is the directory layout of your clean Python workspace:
   ├── pipeline.py                # Text extraction, TF-IDF + Cosine Similarity, AI Agents, & Core Orchestrator
   ├── cli.py                     # Command-line screening utility (outputs JSON, CSV, or Markdown)
   ├── app.py                     # Streamlit web user interface dashboard (with CSV/JSON/MD exports)
+  ├── ui_ux_design.html          # Interactive Standalone UI/UX Design System & Prototype
+  ├── presentation.html          # Interactive browser-based presentation slide deck
+  ├── presentation_deck_guide.md # Complete slide-by-slide presentation guide & speaker script
   ├── Dockerfile                 # Containerized image setup config
   └── README.md                  # Complete system documentation
 ```
@@ -276,21 +364,32 @@ Here is the directory layout of your clean Python workspace:
 
 ---
 
-### 📟 4. [cli.py](file:///d:/Projects/Resume%20Screening%20Agent/cli.py)
+### 🎨 4. [ui_ux_design.html](file:///d:/Projects/Resume%20Screening%20Agent/ui_ux_design.html)
+*   **Lines 1-31 🎨**: Defines CSS `:root` design tokens (obsidian slate background `--bg-dark`, cyber blue `--cyan`, emerald `--emerald`, warm amber `--amber`, rose `--rose`).
+*   **Lines 46-164 🧭**: Implements sticky frosted glass navigation bar, real-time telemetry pills, and the animated 4-Agent pipeline step indicator ribbon.
+*   **Lines 166-350 📐**: Builds the responsive 3-column cockpit layout: Left Job Spec panel, Center Drag-and-Drop dropzone + candidate leaderboard, Right Inspector panel.
+*   **Lines 351-470 📊**: Styles candidate ranking cards, score badges, status pills, and category filter chips (`All`, `Shortlist`, `Interview`, `Reject`).
+*   **Lines 471-636 🔍**: Styles the candidate deep-dive audit view, 4-pillar scorecard progress bars, strengths/gaps badges, QA audit callout box, and interview questions cards.
+*   **Lines 638-873 🏗️**: Pure semantic HTML5 markup structuring the entire interactive screening interface.
+*   **Lines 875-1428 ⚡**: Vanilla JavaScript reactive state engine handling drag-and-drop file reading, simulated multi-agent progress progression, dynamic scoring, filtering, candidate inspection, sample batch loading, and CSV data export.
+
+---
+
+### 📟 5. [cli.py](file:///d:/Projects/Resume%20Screening%20Agent/cli.py)
 *   **Command Line Arguments Parsing ⚙️**: Uses Python's standard `argparse` library to read target job description paths, resume directory paths, format types (`json`/`csv`/`md`), and core Gemini models.
 *   **Pipelines Execution & Console Logs 📟**: Executes the centralized `run_screening_pipeline` and outputs agent workflow logs in real-time.
 *   **Multi-Format Export Writers 💾**: Translates Pydantic structures and writes them to JSON files, clean candidate rankings to CSV files, or compiles complete Recruiter Batch reports in Markdown.
 
 ---
 
-### 🧪 5. [tests/test_pipeline.py](file:///d:/Projects/Resume%20Screening%20Agent/tests/test_pipeline.py)
+### 🧪 6. [tests/test_pipeline.py](file:///d:/Projects/Resume%20Screening%20Agent/tests/test_pipeline.py)
 *   **Unit & Parser Tests 📄**: Verifies document readers against text extraction functions.
 *   **Mathematical Vector Similarity Tests 📊**: Asserts that `TfidfVectorizer` and Cosine Similarity equations perform as expected.
 *   **API call Isolation & Mocking 🛡️**: Patches the Google Gemini API generative model responses to isolate the pipeline orchestrator, testing schema validations without internet calls or rate-limiting.
 
 ---
 
-### ⚙️ 6. [.github/workflows/ci.yml](file:///d:/Projects/Resume%20Screening%20Agent/.github/workflows/ci.yml)
+### ⚙️ 7. [.github/workflows/ci.yml](file:///d:/Projects/Resume%20Screening%20Agent/.github/workflows/ci.yml)
 *   **Triggers specifications ⚡**: Automates workflow triggers on every push and pull request targeted to the `main` branch.
 *   **Multi-Version Python Testing Matrix 🐍**: Sets up automated build executors running on Ubuntu virtual machines across multiple Python versions (3.10 and 3.11).
 *   **Dependencies Caching & Setup 💾**: Caches Python pip packages to speed up consecutive runtimes, installs project requirements, and executes `pytest tests/` in a clean environment.

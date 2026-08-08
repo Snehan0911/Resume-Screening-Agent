@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Screening Agent — Interactive UI/UX Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080c14;
+      --bg-panel: #0e1526;
+      --bg-card: #141e33;
+      --bg-card-hover: #1c2a47;
+      --border-color: #223254;
+      --border-focus: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --cyan: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --emerald: #34d399;
+      --emerald-glow: rgba(52, 211, 153, 0.25);
+      --amber: #fbbf24;
+      --amber-glow: rgba(251, 191, 36, 0.25);
+      --rose: #fb7185;
+      --rose-glow: rgba(251, 113, 133, 0.25);
+      --purple: #c084fc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation */
+    header {
+      background: rgba(14, 21, 38, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--cyan), #0284c7);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 16px var(--cyan-glow);
+    }
+
+    .brand-text { color: var(--text-main); }
+    .brand-text span { color: var(--cyan); }
+
+    .top-stats {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .stat-pill {
+      background: rgba(20, 30, 51, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    /* Pipeline Status Ribbon */
+    .pipeline-bar {
+      background: #0b1120;
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .agent-steps {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .agent-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+
+    .agent-step.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+      animation: pulse 1.5s infinite;
+    }
+
+    .agent-step.done {
+      background: rgba(52, 211, 153, 0.12);
+      border-color: var(--emerald);
+      color: var(--emerald);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+    }
+
+    .step-arrow {
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    /* Main Workspace Layout */
+    .workspace {
+      display: grid;
+      grid-template-columns: 340px 1fr 440px;
+      gap: 20px;
+      padding: 20px 28px;
+      flex: 1;
+      max-width: 1780px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Common Card / Panel Styling */
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(20, 30, 51, 0.4);
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-body {
+      padding: 18px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Left Panel: Job Description */
+    .jd-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .jd-textarea {
+      width: 100%;
+      height: 180px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: #e2e8f0;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      font-family: inherit;
+      resize: none;
+      margin-top: 10px;
+    }
+    .jd-textarea:focus {
+      outline: none;
+      border-color: var(--cyan);
+    }
+
+    .skills-tag-box {
+      margin-top: 16px;
+    }
+    .skills-tag-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .skill-tag {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    /* Center Panel: Upload & Leaderboard */
+    .dropzone {
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+      background: rgba(20, 30, 51, 0.3);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-bottom: 16px;
+      position: relative;
+    }
+    
+    .dropzone.dragover {
+      border-color: var(--cyan);
+      background: rgba(56, 189, 248, 0.12);
+      transform: scale(1.02);
+      box-shadow: 0 0 24px var(--cyan-glow);
+    }
+
+    .dropzone:hover {
+      border-color: var(--cyan);
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    .dropzone-icon {
+      font-size: 36px;
+      margin-bottom: 6px;
+      transition: transform 0.2s;
+    }
+    .dropzone:hover .dropzone-icon {
+      transform: translateY(-2px);
+    }
+
+    .dropzone-text {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .dropzone-text span {
+      color: var(--cyan);
+      text-decoration: underline;
+    }
+
+    .dropzone-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Progress Banner */
+    .upload-progress-box {
+      display: none;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+    .progress-top-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: #080c14;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar-val {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--emerald));
+      transition: width 0.3s ease;
+    }
+
+    /* Leaderboard Table */
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover {
+      border-color: var(--cyan);
+      color: var(--text-main);
+    }
+    .filter-tab.active {
+      background: var(--cyan);
+      color: #080c14;
+      border-color: var(--cyan);
+    }
+
+    .candidate-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .candidate-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .candidate-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--cyan);
+      transform: translateX(4px);
+    }
+    .candidate-card.selected {
+      border-color: var(--cyan);
+      background: rgba(56, 189, 248, 0.09);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.15);
+    }
+
+    .cand-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cand-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1e293b, #334155);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--cyan);
+      border: 1px solid var(--border-color);
+    }
+    .cand-name {
+      font-weight: 800;
+      font-size: 14.5px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cand-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .cand-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .score-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      padding: 4px 9px;
+      border-radius: 8px;
+    }
+    .score-green { background: rgba(52, 211, 153, 0.15); color: var(--emerald); border: 1px solid var(--emerald); }
+    .score-amber { background: rgba(251, 191, 36, 0.15); color: var(--amber); border: 1px solid var(--amber); }
+    .score-rose { background: rgba(251, 113, 133, 0.15); color: var(--rose); border: 1px solid var(--rose); }
+
+    .verdict-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Right Panel: Candidate Inspector Deep-Dive */
+    .inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .insp-name {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .insp-role {
+      font-size: 13px;
+      color: var(--cyan);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .scorecard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .score-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .score-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .score-val {
+      font-size: 16px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .progress-line {
+      height: 4px;
+      background: var(--bg-dark);
+      border-radius: 999px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .progress-fill-sm {
+      height: 100%;
+      background: var(--cyan);
+      transition: width 0.4s ease;
+    }
+
+    .section-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 16px 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .pill-green {
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: var(--emerald);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .pill-rose {
+      background: rgba(251, 113, 133, 0.12);
+      border: 1px solid rgba(251, 113, 133, 0.4);
+      color: var(--rose);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* QA Audit Box */
+    .qa-box {
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12.5px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    /* Interview Questions */
+    .question-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: #e2e8f0;
+      position: relative;
+    }
+    .question-card span {
+      display: block;
+      font-weight: 700;
+      color: var(--purple);
+      font-size: 11px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      box-shadow: 0 4px 14px var(--cyan-glow);
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      background: linear-gradient(135deg, #0369a1, #0284c7);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--cyan);
+      background: #1e293b;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hidden Real File Input -->
+  <input type="file" id="resumeFileInput" multiple accept=".pdf,.docx,.txt" style="display: none;" onchange="handleFileSelect(event)">
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🤖</div>
+      <div class="brand-text">Resume Screening <span>Agent</span></div>
+    </div>
+
+    <div class="top-stats">
+      <div class="stat-pill">
+        <div class="stat-dot"></div>
+        Core Engine: <strong>Gemini 3.5 Flash</strong>
+      </div>
+      <div class="stat-pill">
+        ⚡ Math Baseline: <strong>TF-IDF Cosine Sim</strong>
+      </div>
+      <div class="stat-pill">
+        ⏱️ Avg Speed: <strong>&lt;0.8s / resume</strong>
+      </div>
+    </div>
+  </header>
+
+  <!-- Collaborative Agent Pipeline Status Ribbon -->
+  <div class="pipeline-bar">
+    <div class="agent-steps">
+      <div class="agent-step done" id="stepAgent1">
+        <span>🔍</span> Agent 1: Resume Parser (JSON)
+      </div>
+      <div class="step-arrow">➔</div>
+      <div class="agent-step done" id="stepAgent2">
+        <span>⚖️</span> Agent 2: 4-Pillar Evaluator
+      </div>
+      <div class="step-arrow">➔</div>
+      <div class="agent-step done" id="stepAgent3">
+        <span>🛡️</span> Agent 3: QA Fact-Checker
+      </div>
+      <div class="step-arrow">➔</div>
+      <div class="agent-step active" id="stepAgent4">
+        <span>👑</span> Agent 4: Interview Coach
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <button class="btn-secondary" onclick="loadSampleBatch()">
+        ⚡ Load 5 Sample Candidates
+      </button>
+      <button class="btn-secondary" onclick="exportData()" style="color: var(--cyan); border-color: var(--cyan);">
+        📥 Export Shortlist
+      </button>
+    </div>
+  </div>
+
+  <!-- 3-Column Modern Workspace -->
+  <div class="workspace">
+
+    <!-- Column 1: Job Description Input Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📋</span> Job Requirements
+        </div>
+        <span class="jd-badge">Senior Level</span>
+      </div>
+
+      <div class="panel-body">
+        <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">Target Role: Senior Full-Stack Engineer</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Min 5+ Years Experience • Remote / Hybrid</div>
+
+        <textarea class="jd-textarea" id="jdTextInput">We are seeking a Senior Full-Stack Engineer to architect scalable web apps. 
+Requirements:
+- 5+ years with Python (FastAPI / Django)
+- Strong React, TypeScript, and modern state management
+- Docker, CI/CD, and AWS cloud deployment
+- Experience with PostgreSQL and Redis caching</textarea>
+
+        <div class="skills-tag-box">
+          <div class="skills-tag-title">Required Core Competencies</div>
+          <div class="tags-container">
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">FastAPI</span>
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">TypeScript</span>
+            <span class="skill-tag">Docker</span>
+            <span class="skill-tag">AWS</span>
+            <span class="skill-tag">PostgreSQL</span>
+            <span class="skill-tag">Redis</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn-action" onclick="triggerBrowseUpload()">
+            📂 Upload Resumes to Screen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: Upload Zone & Ranked Leaderboard -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📊</span> Candidate Leaderboard
+        </div>
+        <span style="font-size: 12px; font-weight: 700; color: var(--emerald);" id="candidateCountBadge">5 Candidates Evaluated</span>
+      </div>
+
+      <div class="panel-body">
+        <!-- FUNCTIONAL DRAG AND DROP ZONE -->
+        <div class="dropzone" id="dropzoneBox" onclick="triggerBrowseUpload()">
+          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-text">Drop your Resume files here or <span>Browse</span></div>
+          <div class="dropzone-sub">Supports batch upload of <strong>PDF</strong>, <strong>Word (.docx)</strong>, and <strong>Plain Text (.txt)</strong></div>
+        </div>
+
+        <!-- Live Upload / Screening Progress Banner -->
+        <div class="upload-progress-box" id="uploadProgressBox">
+          <div class="progress-top-row">
+            <span id="progressStatusText" style="color: var(--cyan);">Agent 1: Extracting text & skills...</span>
+            <span id="progressPercent" style="color: var(--emerald);">25%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-val" id="progressBarVal"></div>
+          </div>
+        </div>
+
+        <!-- Table Filters -->
+        <div class="table-controls">
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterCandidates('all')">All (<span id="countAll">5</span>)</button>
+            <button class="filter-tab" onclick="filterCandidates('shortlist')">Shortlist (<span id="countShortlist">2</span>)</button>
+            <button class="filter-tab" onclick="filterCandidates('interview')">Review (<span id="countReview">1</span>)</button>
+            <button class="filter-tab" onclick="filterCandidates('reject')">Rejected (<span id="countReject">2</span>)</button>
+          </div>
+          <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="clearAllCandidates()">
+            🗑️ Clear
+          </button>
+        </div>
+
+        <!-- Candidate Cards -->
+        <div class="candidate-list" id="candidateList">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 3: Candidate Inspector Deep-Dive -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>🔍</span> Candidate Deep-Dive Audit
+        </div>
+        <span style="font-size: 11px; font-weight: 700; color: var(--purple);">AI AUDIT REPORT</span>
+      </div>
+
+      <div class="panel-body" id="inspectorBody">
+        <!-- Profile Header -->
+        <div class="inspector-header">
+          <div>
+            <div class="insp-name" id="inspName">Alice Smith</div>
+            <div class="insp-role" id="inspRole">Senior Full-Stack Lead • Shortlist Recommended</div>
+          </div>
+          <div class="score-badge score-green" id="inspScore">92 / 100</div>
+        </div>
+
+        <!-- 4-Pillar Scorecard Grid -->
+        <div class="scorecard-grid">
+          <div class="score-box">
+            <div class="score-label">Technical Skills</div>
+            <div class="score-val" style="color: var(--cyan);" id="scoreTech">94%</div>
+            <div class="progress-line"><div class="progress-fill-sm" id="barTech" style="width: 94%;"></div></div>
+          </div>
+          <div class="score-box">
+            <div class="score-label">Experience Depth</div>
+            <div class="score-val" style="color: var(--emerald);" id="scoreExp">95%</div>
+            <div class="progress-line"><div class="progress-fill-sm" id="barExp" style="width: 95%; background: var(--emerald);"></div></div>
+          </div>
+          <div class="score-box">
+            <div class="score-label">Education Match</div>
+            <div class="score-val" style="color: var(--amber);" id="scoreEdu">88%</div>
+            <div class="progress-line"><div class="progress-fill-sm" id="barEdu" style="width: 88%; background: var(--amber);"></div></div>
+          </div>
+          <div class="score-box">
+            <div class="score-label">Role Fit</div>
+            <div class="score-val" style="color: var(--purple);" id="scoreRole">91%</div>
+            <div class="progress-line"><div class="progress-fill-sm" id="barRole" style="width: 91%; background: var(--purple);"></div></div>
+          </div>
+        </div>
+
+        <!-- Matched Skills -->
+        <div class="section-title"><span>✅</span> Key Strengths & Matches</div>
+        <div class="pill-list" id="strengthsList">
+          <span class="pill-green">Python (FastAPI)</span>
+          <span class="pill-green">React + TypeScript</span>
+          <span class="pill-green">AWS Architecture</span>
+          <span class="pill-green">Docker & CI/CD</span>
+          <span class="pill-green">PostgreSQL Optimization</span>
+        </div>
+
+        <!-- Missing Gaps -->
+        <div class="section-title"><span>⚠️</span> Missing Gaps / Growth Areas</div>
+        <div class="pill-list" id="gapsList">
+          <span class="pill-rose">Kubernetes multi-cluster orchestration</span>
+        </div>
+
+        <!-- QA Auditor Verification -->
+        <div class="section-title"><span>🛡️</span> QA Fact-Checker Audit</div>
+        <div class="qa-box" id="qaAuditText">
+          <strong>Verified:</strong> 7-year continuous progression from Junior Dev to Lead Architect matches claimed dates. TF-IDF mathematical vector similarity score is 89.4%, confirming genuine vocabulary coverage without keyword stuffing.
+        </div>
+
+        <!-- Generated Interview Questions -->
+        <div class="section-title"><span>🎙️</span> Tailored Interview Question Kit</div>
+        <div id="questionsContainer">
+          <div class="question-card">
+            <span>Technical Deep-Dive</span>
+            "How did you design Redis caching and handle race conditions under high concurrent traffic?"
+          </div>
+          <div class="question-card">
+            <span>Architecture & Scale</span>
+            "Can you walk us through your AWS ECS Docker deployment pipeline and failover strategy?"
+          </div>
+          <div class="question-card">
+            <span>Behavioral Leadership</span>
+            "Describe a time you resolved a major technical disagreement between frontend and backend engineers."
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Initial Candidate Database
+    let candidates = [
+      {
+        id: "alice",
+        name: "Alice Smith 🏆",
+        initials: "AS",
+        category: "shortlist",
+        role: "Senior Full-Stack Lead • Shortlist Recommended",
+        summary: "Senior Full-Stack Lead • 7+ Yrs Exp",
+        score: 92,
+        scoreText: "92%",
+        scoreClass: "score-green",
+        verdict: "SHORTLIST",
+        verdictColor: "var(--emerald)",
+        tech: 94,
+        exp: 95,
+        edu: 88,
+        roleFit: 91,
+        strengths: ["Python (FastAPI)", "React + TypeScript", "AWS Architecture", "Docker & CI/CD", "PostgreSQL"],
+        gaps: ["Kubernetes multi-cluster orchestration"],
+        qa: "Verified: 7-year continuous progression from Junior Dev to Lead Architect matches claimed dates. TF-IDF mathematical vector similarity score is 89.4%, confirming genuine vocabulary coverage without keyword stuffing.",
+        questions: [
+          { type: "Technical Deep-Dive", text: "How did you design Redis caching and handle race conditions under high concurrent traffic?" },
+          { type: "Architecture & Scale", text: "Can you walk us through your AWS ECS Docker deployment pipeline and failover strategy?" },
+          { type: "Behavioral Leadership", text: "Describe a time you resolved a major technical disagreement between frontend and backend engineers." }
+        ]
+      },
+      {
+        id: "kevin",
+        name: "Kevin Baker",
+        initials: "KB",
+        category: "shortlist",
+        role: "Mid Full-Stack Dev • Shortlist Recommended",
+        summary: "Mid Full-Stack Dev • 4 Yrs Exp",
+        score: 84,
+        scoreText: "84%",
+        scoreClass: "score-green",
+        verdict: "SHORTLIST",
+        verdictColor: "var(--emerald)",
+        tech: 86,
+        exp: 80,
+        edu: 85,
+        roleFit: 85,
+        strengths: ["Python", "FastAPI", "React", "Docker", "PostgreSQL"],
+        gaps: ["Advanced AWS cloud architecture", "High-scale Redis caching"],
+        qa: "Verified: 4 years of solid hands-on development. Timeline is authentic and verified with TF-IDF cosine similarity of 81.2%.",
+        questions: [
+          { type: "API Design", text: "How do you structure FastAPI dependency injection for reusable authentication services?" },
+          { type: "Frontend State", text: "What strategies do you use in React to prevent unnecessary component re-renders?" }
+        ]
+      },
+      {
+        id: "fiona",
+        name: "Fiona Gallagher",
+        initials: "FG",
+        category: "interview",
+        role: "Senior Backend Specialist • Interview Recommended",
+        summary: "Senior Backend Specialist • 6 Yrs Exp",
+        score: 76,
+        scoreText: "76%",
+        scoreClass: "score-amber",
+        verdict: "INTERVIEW",
+        verdictColor: "var(--amber)",
+        tech: 88,
+        exp: 90,
+        edu: 80,
+        roleFit: 45,
+        strengths: ["Python", "FastAPI", "PostgreSQL", "Celery", "Microservices"],
+        gaps: ["React frontend experience", "TypeScript UI workflows"],
+        qa: "Verified: Exceptional backend depth, but limited frontend experience compared to full-stack JD requirements.",
+        questions: [
+          { type: "Backend Architecture", text: "How do you manage Celery worker task retries and dead-letter queues?" },
+          { type: "Full-Stack Transition", text: "Are you comfortable learning React and TypeScript for full-stack responsibilities?" }
+        ]
+      },
+      {
+        id: "charlie",
+        name: "Charlie Brown",
+        initials: "CB",
+        category: "reject",
+        role: "Junior Frontend Learner • Needs Prep",
+        summary: "Junior Frontend Learner • 1 Yr Exp",
+        score: 45,
+        scoreText: "45%",
+        scoreClass: "score-amber",
+        verdict: "NEEDS PREP",
+        verdictColor: "var(--amber)",
+        tech: 48,
+        exp: 35,
+        edu: 75,
+        roleFit: 20,
+        strengths: ["HTML/CSS", "Basic React", "Git"],
+        gaps: ["Python / FastAPI backend", "AWS Cloud Infrastructure", "Docker & CI/CD"],
+        qa: "Verified: Enthusiastic junior with 1 year experience. Not yet qualified for a Senior role, but promising for Junior openings.",
+        questions: [
+          { type: "Fundamentals", text: "What is the difference between React state and props?" },
+          { type: "Career Growth", text: "What backend frameworks (like FastAPI or Django) are you currently learning?" }
+        ]
+      },
+      {
+        id: "diana",
+        name: "Diana Prince",
+        initials: "DP",
+        category: "reject",
+        role: "Technical Project Manager • Reject for Coding",
+        summary: "Technical Project Manager • 5 Yrs Exp",
+        score: 10,
+        scoreText: "10%",
+        scoreClass: "score-rose",
+        verdict: "REJECT",
+        verdictColor: "var(--rose)",
+        tech: 5,
+        exp: 85,
+        edu: 90,
+        roleFit: 2,
+        strengths: ["PMP Certified", "Agile Scrum Master", "Jira & Confluence", "Budgeting"],
+        gaps: ["Hands-on Python coding", "React & Frontend", "Cloud DevOps"],
+        qa: "Audit: Non-coding background. Zero software engineering history. Recommended for routing to Technical Project Manager openings.",
+        questions: [
+          { type: "Project Delivery", text: "How do you handle scope creep and tight delivery deadlines with agile teams?" }
+        ]
+      }
+    ];
+
+    let currentFilter = 'all';
+    let selectedCandidateId = 'alice';
+
+    // Drag and Drop Event Handlers
+    const dropzone = document.getElementById('dropzoneBox');
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files && files.length > 0) {
+        processUploadedFiles(Array.from(files));
+      }
+    });
+
+    function triggerBrowseUpload() {
+      document.getElementById('resumeFileInput').click();
+    }
+
+    function handleFileSelect(event) {
+      const files = event.target.files;
+      if (files && files.length > 0) {
+        processUploadedFiles(Array.from(files));
+      }
+    }
+
+    function processUploadedFiles(fileList) {
+      const progressBox = document.getElementById('uploadProgressBox');
+      const progressBar = document.getElementById('progressBarVal');
+      const progressText = document.getElementById('progressStatusText');
+      const progressPercent = document.getElementById('progressPercent');
+      
+      progressBox.style.display = 'block';
+      progressBar.style.width = '10%';
+
+      // Update Pipeline Ribbon Active Step
+      setPipelineStep(1);
+      progressText.innerText = `Agent 1: Extracting text from ${fileList.length} file(s)...`;
+      progressPercent.innerText = "25%";
+
+      setTimeout(() => {
+        setPipelineStep(2);
+        progressBar.style.width = '50%';
+        progressText.innerText = "Agent 2: Scoring 4 pillars (Tech, Exp, Edu, Role)...";
+        progressPercent.innerText = "50%";
+      }, 500);
+
+      setTimeout(() => {
+        setPipelineStep(3);
+        progressBar.style.width = '75%';
+        progressText.innerText = "Agent 3: QA Fact-Checker auditing claims & TF-IDF similarity...";
+        progressPercent.innerText = "75%";
+      }, 1000);
+
+      setTimeout(() => {
+        setPipelineStep(4);
+        progressBar.style.width = '100%';
+        progressText.innerText = "Agent 4: Generating interview kit & ranking leaderboard...";
+        progressPercent.innerText = "100%";
+
+        // Parse each file and generate candidate entry
+        fileList.forEach(file => {
+          const rawName = file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ").replace(/-/g, " ");
+          const formattedName = rawName.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+          const initials = formattedName.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase() || "CV";
+          const newId = "cand_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+
+          // Simulated smart scoring based on filename keywords
+          let simulatedScore = 78;
+          let category = "interview";
+          let scoreClass = "score-amber";
+          let verdict = "INTERVIEW";
+          let verdictColor = "var(--amber)";
+          let strengths = ["Python", "Backend APIs", "Git", "Problem Solving"];
+          let gaps = ["Advanced Cloud DevOps"];
+          let roleFit = 75;
+
+          const lower = file.name.toLowerCase();
+          if (lower.includes("senior") || lower.includes("lead") || lower.includes("alice") || lower.includes("fullstack")) {
+            simulatedScore = 91;
+            category = "shortlist";
+            scoreClass = "score-green";
+            verdict = "SHORTLIST";
+            verdictColor = "var(--emerald)";
+            strengths = ["Python (FastAPI)", "React + TypeScript", "AWS Cloud Architecture", "Docker", "PostgreSQL"];
+            gaps = ["Kubernetes multi-cluster routing"];
+            roleFit = 92;
+          } else if (lower.includes("junior") || lower.includes("intern") || lower.includes("charlie")) {
+            simulatedScore = 48;
+            category = "reject";
+            scoreClass = "score-amber";
+            verdict = "NEEDS PREP";
+            verdictColor = "var(--amber)";
+            strengths = ["HTML/CSS", "JavaScript Basics", "Git"];
+            gaps = ["FastAPI Backend", "Cloud Architecture (AWS)", "Docker CI/CD"];
+            roleFit = 30;
+          } else if (lower.includes("manager") || lower.includes("design") || lower.includes("diana")) {
+            simulatedScore = 15;
+            category = "reject";
+            scoreClass = "score-rose";
+            verdict = "REJECT";
+            verdictColor = "var(--rose)";
+            strengths = ["Project Management", "Agile Scrum", "Stakeholder Communication"];
+            gaps = ["Hands-on Python coding", "React Frontend", "Cloud DevOps"];
+            roleFit = 5;
+          }
+
+          const newCandidate = {
+            id: newId,
+            name: formattedName + " ✨",
+            initials: initials,
+            category: category,
+            role: `Uploaded: ${file.name} • ${verdict}`,
+            summary: `Parsed from ${file.name} (${Math.round(file.size/1024)} KB)`,
+            score: simulatedScore,
+            scoreText: `${simulatedScore}%`,
+            scoreClass: scoreClass,
+            verdict: verdict,
+            verdictColor: verdictColor,
+            tech: Math.min(100, simulatedScore + 3),
+            exp: Math.min(100, simulatedScore - 2),
+            edu: 85,
+            roleFit: roleFit,
+            strengths: strengths,
+            gaps: gaps,
+            qa: `Verified: Document ${file.name} parsed successfully. Mathematical TF-IDF similarity score is ${simulatedScore - 5}%. Authentic claims validated.`,
+            questions: [
+              { type: "Technical Deep-Dive", text: `Can you explain your experience with ${strengths[0]} in your most recent project?` },
+              { type: "Skill Growth", text: `How are you planning to level up on ${gaps[0]} for this role?` },
+              { type: "Problem Solving", text: "Walk us through a challenging bug you diagnosed and solved in production." }
+            ]
+          };
+
+          candidates.unshift(newCandidate);
+          selectedCandidateId = newId;
+        });
+
+        // Re-render
+        renderCandidates();
+        renderInspector(candidates[0]);
+
+        setTimeout(() => {
+          progressBox.style.display = 'none';
+        }, 1200);
+
+      }, 1500);
+    }
+
+    function setPipelineStep(stepNumber) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById(`stepAgent${i}`);
+        if (i < stepNumber) {
+          el.className = "agent-step done";
+        } else if (i === stepNumber) {
+          el.className = "agent-step active";
+        } else {
+          el.className = "agent-step";
+        }
+      }
+    }
+
+    function renderCandidates() {
+      const listContainer = document.getElementById('candidateList');
+      listContainer.innerHTML = '';
+
+      // Sort by score descending
+      candidates.sort((a, b) => b.score - a.score);
+
+      const filtered = candidates.filter(c => {
+        if (currentFilter === 'all') return true;
+        return c.category === currentFilter;
+      });
+
+      // Update Counts
+      document.getElementById('countAll').innerText = candidates.length;
+      document.getElementById('countShortlist').innerText = candidates.filter(c => c.category === 'shortlist').length;
+      document.getElementById('countReview').innerText = candidates.filter(c => c.category === 'interview').length;
+      document.getElementById('countReject').innerText = candidates.filter(c => c.category === 'reject').length;
+      document.getElementById('candidateCountBadge').innerText = `${candidates.length} Candidates Evaluated`;
+
+      filtered.forEach(c => {
+        const isSelected = c.id === selectedCandidateId;
+        const card = document.createElement('div');
+        card.className = `candidate-card ${isSelected ? 'selected' : ''}`;
+        card.onclick = () => selectCandidate(c.id);
+
+        card.innerHTML = `
+          <div class="cand-left">
+            <div class="cand-avatar">${c.initials}</div>
+            <div>
+              <div class="cand-name">${c.name}</div>
+              <div class="cand-title">${c.summary}</div>
+            </div>
+          </div>
+          <div class="cand-right">
+            <div class="score-badge ${c.scoreClass}">${c.scoreText}</div>
+            <div class="verdict-tag" style="color: ${c.verdictColor};">${c.verdict}</div>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+    }
+
+    function selectCandidate(id) {
+      selectedCandidateId = id;
+      const cand = candidates.find(c => c.id === id);
+      if (!cand) return;
+
+      renderCandidates();
+      renderInspector(cand);
+    }
+
+    function renderInspector(cand) {
+      document.getElementById('inspName').innerText = cand.name;
+      document.getElementById('inspRole').innerText = cand.role;
+
+      const scoreElem = document.getElementById('inspScore');
+      scoreElem.innerText = `${cand.score} / 100`;
+      scoreElem.className = `score-badge ${cand.scoreClass}`;
+
+      document.getElementById('scoreTech').innerText = `${cand.tech}%`;
+      document.getElementById('barTech').style.width = `${cand.tech}%`;
+
+      document.getElementById('scoreExp').innerText = `${cand.exp}%`;
+      document.getElementById('barExp').style.width = `${cand.exp}%`;
+
+      document.getElementById('scoreEdu').innerText = `${cand.edu}%`;
+      document.getElementById('barEdu').style.width = `${cand.edu}%`;
+
+      document.getElementById('scoreRole').innerText = `${cand.roleFit}%`;
+      document.getElementById('barRole').style.width = `${cand.roleFit}%`;
+
+      // Strengths
+      const strBox = document.getElementById('strengthsList');
+      strBox.innerHTML = cand.strengths.map(s => `<span class="pill-green">${s}</span>`).join('');
+
+      // Gaps
+      const gapBox = document.getElementById('gapsList');
+      gapBox.innerHTML = cand.gaps.map(g => `<span class="pill-rose">${g}</span>`).join('');
+
+      // QA
+      document.getElementById('qaAuditText').innerHTML = `<strong>Verified:</strong> ${cand.qa}`;
+
+      // Questions
+      const qBox = document.getElementById('questionsContainer');
+      qBox.innerHTML = cand.questions.map(q => `
+        <div class="question-card">
+          <span>${q.type}</span>
+          "${q.text}"
+        </div>
+      `).join('');
+    }
+
+    function filterCandidates(type) {
+      currentFilter = type;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      renderCandidates();
+    }
+
+    function clearAllCandidates() {
+      if (confirm('Clear all candidates from the current view?')) {
+        candidates = [];
+        renderCandidates();
+        document.getElementById('inspName').innerText = "No Candidate Selected";
+        document.getElementById('inspRole').innerText = "Upload resumes to view audit details";
+        document.getElementById('inspScore').innerText = "--";
+      }
+    }
+
+    function loadSampleBatch() {
+      candidates = [
+        {
+          id: "alice",
+          name: "Alice Smith 🏆",
+          initials: "AS",
+          category: "shortlist",
+          role: "Senior Full-Stack Lead • Shortlist Recommended",
+          summary: "Senior Full-Stack Lead • 7+ Yrs Exp",
+          score: 92,
+          scoreText: "92%",
+          scoreClass: "score-green",
+          verdict: "SHORTLIST",
+          verdictColor: "var(--emerald)",
+          tech: 94,
+          exp: 95,
+          edu: 88,
+          roleFit: 91,
+          strengths: ["Python (FastAPI)", "React + TypeScript", "AWS Architecture", "Docker & CI/CD", "PostgreSQL"],
+          gaps: ["Kubernetes multi-cluster orchestration"],
+          qa: "Verified: 7-year continuous progression from Junior Dev to Lead Architect matches claimed dates. TF-IDF mathematical vector similarity score is 89.4%, confirming genuine vocabulary coverage without keyword stuffing.",
+          questions: [
+            { type: "Technical Deep-Dive", text: "How did you design Redis caching and handle race conditions under high concurrent traffic?" },
+            { type: "Architecture & Scale", text: "Can you walk us through your AWS ECS Docker deployment pipeline and failover strategy?" },
+            { type: "Behavioral Leadership", text: "Describe a time you resolved a major technical disagreement between frontend and backend engineers." }
+          ]
+        },
+        {
+          id: "kevin",
+          name: "Kevin Baker",
+          initials: "KB",
+          category: "shortlist",
+          role: "Mid Full-Stack Dev • Shortlist Recommended",
+          summary: "Mid Full-Stack Dev • 4 Yrs Exp",
+          score: 84,
+          scoreText: "84%",
+          scoreClass: "score-green",
+          verdict: "SHORTLIST",
+          verdictColor: "var(--emerald)",
+          tech: 86,
+          exp: 80,
+          edu: 85,
+          roleFit: 85,
+          strengths: ["Python", "FastAPI", "React", "Docker", "PostgreSQL"],
+          gaps: ["Advanced AWS cloud architecture", "High-scale Redis caching"],
+          qa: "Verified: 4 years of solid hands-on development. Timeline is authentic and verified with TF-IDF cosine similarity of 81.2%.",
+          questions: [
+            { type: "API Design", text: "How do you structure FastAPI dependency injection for reusable authentication services?" },
+            { type: "Frontend State", text: "What strategies do you use in React to prevent unnecessary component re-renders?" }
+          ]
+        },
+        {
+          id: "fiona",
+          name: "Fiona Gallagher",
+          initials: "FG",
+          category: "interview",
+          role: "Senior Backend Specialist • Interview Recommended",
+          summary: "Senior Backend Specialist • 6 Yrs Exp",
+          score: 76,
+          scoreText: "76%",
+          scoreClass: "score-amber",
+          verdict: "INTERVIEW",
+          verdictColor: "var(--amber)",
+          tech: 88,
+          exp: 90,
+          edu: 80,
+          roleFit: 45,
+          strengths: ["Python", "FastAPI", "PostgreSQL", "Celery", "Microservices"],
+          gaps: ["React frontend experience", "TypeScript UI workflows"],
+          qa: "Verified: Exceptional backend depth, but limited frontend experience compared to full-stack JD requirements.",
+          questions: [
+            { type: "Backend Architecture", text: "How do you manage Celery worker task retries and dead-letter queues?" },
+            { type: "Full-Stack Transition", text: "Are you comfortable learning React and TypeScript for full-stack responsibilities?" }
+          ]
+        },
+        {
+          id: "charlie",
+          name: "Charlie Brown",
+          initials: "CB",
+          category: "reject",
+          role: "Junior Frontend Learner • Needs Prep",
+          summary: "Junior Frontend Learner • 1 Yr Exp",
+          score: 45,
+          scoreText: "45%",
+          scoreClass: "score-amber",
+          verdict: "NEEDS PREP",
+          verdictColor: "var(--amber)",
+          tech: 48,
+          exp: 35,
+          edu: 75,
+          roleFit: 20,
+          strengths: ["HTML/CSS", "Basic React", "Git"],
+          gaps: ["Python / FastAPI backend", "AWS Cloud Infrastructure", "Docker & CI/CD"],
+          qa: "Verified: Enthusiastic junior with 1 year experience. Not yet qualified for a Senior role, but promising for Junior openings.",
+          questions: [
+            { type: "Fundamentals", text: "What is the difference between React state and props?" },
+            { type: "Career Growth", text: "What backend frameworks (like FastAPI or Django) are you currently learning?" }
+          ]
+        },
+        {
+          id: "diana",
+          name: "Diana Prince",
+          initials: "DP",
+          category: "reject",
+          role: "Technical Project Manager • Reject for Coding",
+          summary: "Technical Project Manager • 5 Yrs Exp",
+          score: 10,
+          scoreText: "10%",
+          scoreClass: "score-rose",
+          verdict: "REJECT",
+          verdictColor: "var(--rose)",
+          tech: 5,
+          exp: 85,
+          edu: 90,
+          roleFit: 2,
+          strengths: ["PMP Certified", "Agile Scrum Master", "Jira & Confluence", "Budgeting"],
+          gaps: ["Hands-on Python coding", "React & Frontend", "Cloud DevOps"],
+          qa: "Audit: Non-coding background. Zero software engineering history. Recommended for routing to Technical Project Manager openings.",
+          questions: [
+            { type: "Project Delivery", text: "How do you handle scope creep and tight delivery deadlines with agile teams?" }
+          ]
+        }
+      ];
+      selectedCandidateId = "alice";
+      renderCandidates();
+      renderInspector(candidates[0]);
+    }
+
+    function exportData() {
+      const csvContent = "data:text/csv;charset=utf-8," 
+        + ["Name,Score,Category,Verdict"].join(",") + "\n"
+        + candidates.map(c => `"${c.name}",${c.score},"${c.category}","${c.verdict}"`).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "candidate_leaderboard.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Initial load
+    renderCandidates();
+    renderInspector(candidates[0]);
+  </script>
+</body>
+</html>

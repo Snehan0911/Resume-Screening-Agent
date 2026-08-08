@@ -15,7 +15,7 @@ class PipelineEncoder(json.JSONEncoder):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="TalentStream AI: Command Line Interface for Multi-Agent Resume Screening System."
+        description="Resume Screening Agent: Command Line Interface for Multi-Agent Resume Screening System."
     )
     parser.add_argument(
         "--jd",

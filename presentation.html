@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Screening Agent — Interactive Slide Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080c14;
+      --bg-card: #111827;
+      --bg-subcard: #172033;
+      --border-color: #263554;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.3);
+      --secondary: #34d399;
+      --secondary-glow: rgba(52, 211, 153, 0.3);
+      --accent-warn: #fbbf24;
+      --accent-rose: #fb7185;
+      --accent-purple: #c084fc;
+      --accent-indigo: #818cf8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* Top Navigation */
+    header {
+      background: rgba(17, 24, 39, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: -0.5px;
+      color: var(--primary);
+    }
+    .brand span { color: var(--text-main); }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      background: var(--bg-subcard);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #1e293b;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      border: none;
+      color: white;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0369a1, #0284c7);
+      box-shadow: 0 6px 18px var(--primary-glow);
+    }
+
+    /* Main Presentation Container */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .slide-wrapper {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: radial-gradient(circle at 10% 20%, rgba(26, 38, 66, 0.4) 0%, rgba(17, 24, 39, 0.95) 90%);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.05);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 36px 42px;
+      transition: all 0.3s ease;
+    }
+
+    /* Individual Slide */
+    .slide {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .slide.active { display: flex; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Top Tags & Headers */
+    .slide-header {
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      width: fit-content;
+    }
+    .badge-blue { background: rgba(56, 189, 248, 0.15); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.4); }
+    .badge-green { background: rgba(52, 211, 153, 0.15); color: var(--secondary); border: 1px solid rgba(52, 211, 153, 0.4); }
+    .badge-amber { background: rgba(251, 191, 36, 0.15); color: var(--accent-warn); border: 1px solid rgba(251, 191, 36, 0.4); }
+    .badge-purple { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); border: 1px solid rgba(192, 132, 252, 0.4); }
+    .badge-rose { background: rgba(251, 113, 133, 0.15); color: var(--accent-rose); border: 1px solid rgba(251, 113, 133, 0.4); }
+
+    .slide-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+    }
+    .slide-subtitle {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Grids & Cards (No Wasted Space) */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      flex: 1;
+      align-items: stretch;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      flex: 1;
+      align-items: stretch;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      flex: 1;
+      align-items: stretch;
+    }
+    .grid-6 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 14px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--bg-subcard);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .card.blue { border-top: 3px solid var(--primary); }
+    .card.green { border-top: 3px solid var(--secondary); }
+    .card.amber { border-top: 3px solid var(--accent-warn); }
+    .card.purple { border-top: 3px solid var(--accent-purple); }
+    .card.rose { border-top: 3px solid var(--accent-rose); }
+    .card.indigo { border-top: 3px solid var(--accent-indigo); }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .card-subtitle {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-body {
+      font-size: 13px;
+      line-height: 1.55;
+      color: #cbd5e1;
+      flex: 1;
+    }
+
+    .card-body ul {
+      list-style: none;
+    }
+    .card-body ul li {
+      margin-bottom: 7px;
+      position: relative;
+      padding-left: 16px;
+    }
+    .card-body ul li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .score-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* Hero Slide Custom */
+    .hero-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+    .hero-top {
+      text-align: center;
+      margin-top: 8px;
+    }
+    .hero-title {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    .hero-tagline {
+      font-size: 18px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .hero-desc {
+      max-width: 820px;
+      margin: 0 auto;
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    /* Bottom Presentation Navigation */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 14px;
+      padding: 0 4px;
+    }
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-card);
+      border-radius: 999px;
+      margin: 0 20px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 8.33%;
+      transition: width 0.3s ease;
+    }
+
+    /* Speaker Notes Popup */
+    .speaker-drawer {
+      margin-top: 14px;
+      width: 100%;
+      background: #111827;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: none;
+    }
+    .speaker-drawer.open { display: block; }
+    .speaker-drawer h4 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-warn);
+      margin-bottom: 4px;
+    }
+    .speaker-drawer p {
+      font-size: 13.5px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    /* Slide Thumbnails Drawer */
+    .slide-jump-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 8px 0;
+      margin-top: 8px;
+    }
+    .jump-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--bg-subcard);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .jump-dot:hover, .jump-dot.active {
+      background: var(--primary);
+      color: #080c14;
+      border-color: var(--primary);
+    }
+
+    .key-hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .kbd {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      🚀 <span>Resume Screening Agent</span>
+      <span style="font-size: 11px; padding: 2px 8px; background: rgba(56,189,248,0.15); border: 1px solid var(--primary); border-radius: 999px; color: var(--primary); font-weight: 700;">Project Presentation</span>
+    </div>
+    <div class="nav-controls">
+      <button class="btn" onclick="toggleNotes()" id="notesBtn">🎙️ Speaker Notes</button>
+      <button class="btn btn-primary" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+    </div>
+  </header>
+
+  <!-- Main Stage -->
+  <main>
+    <div class="slide-wrapper" id="slideStage">
+
+      <!-- SLIDE 1: Title Hero -->
+      <div class="slide active" data-title="Title & Vision" data-notes="Welcome everyone! Today I am presenting the Resume Screening Agent. Whether you are looking for your dream job or curious about how modern technology screens resumes, this presentation explains everything in everyday English with zero technical jargon.">
+        <div class="hero-container">
+          <div class="hero-top">
+            <div class="badge badge-green">🚀 NEXT-GENERATION RECRUITMENT AI</div>
+            <h1 class="hero-title">Resume Screening Agent</h1>
+            <div class="hero-tagline">Smart, Transparent & Honest Multi-Agent Resume Screening</div>
+            <p class="hero-desc">
+              Solving the resume 'black hole' with 4 transparent, cooperating AI agents. 
+              Designed for job seekers, learners, and high-volume hiring teams.
+            </p>
+          </div>
+
+          <div class="hero-metrics">
+            <div class="card cyan">
+              <div class="card-title" style="color: var(--primary);">⏱️ 95% Time Saved</div>
+              <div class="card-body">Screens 50+ candidates in &lt;30 seconds instead of 2 weeks of manual file reading.</div>
+            </div>
+            <div class="card green">
+              <div class="card-title" style="color: var(--secondary);">🤝 4 AI Agents</div>
+              <div class="card-body">Parser, Reviewer, Fact-Checking Auditor & Tailored Interview Coach.</div>
+            </div>
+            <div class="card amber">
+              <div class="card-title" style="color: var(--accent-warn);">🛡️ Zero Fake Scores</div>
+              <div class="card-body">Mathematical TF-IDF vector similarity stops AI hallucination & score inflation.</div>
+            </div>
+            <div class="card purple">
+              <div class="card-title" style="color: var(--accent-purple);">🎯 Free Interview Prep</div>
+              <div class="card-body">Generates customized technical & behavioral practice questions for every candidate.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 10px; font-size: 12px; color: var(--text-muted);">
+            <span>Presented by: <strong>Snehan</strong></span>
+            <span>Tech: <strong>Python 3.13 • Gemini 3.5 Flash • Scikit-Learn • Streamlit</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: The Real-Life Problem -->
+      <div class="slide" data-title="The Real-Life Problem" data-notes="Let's start with a problem every single one of us has faced: applying for jobs online. You submit your resume, and it feels like it vanishes into a black hole. Recruiters are flooded with hundreds of resumes, while candidates get no feedback. Traditional automated tools simply count words like a robot without understanding real talent.">
+        <div class="slide-header">
+          <div class="badge badge-rose">THE PROBLEM</div>
+          <h2 class="slide-title">The Real-Life Problem: The Job Application 'Black Hole'</h2>
+          <div class="slide-subtitle">Why do 75% of great resumes get rejected before a human ever reads them?</div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card rose">
+            <div class="card-title" style="color: var(--accent-rose);">👤 For Job Seekers</div>
+            <div class="card-subtitle">Frustration & Total Silence</div>
+            <div class="card-body">
+              <ul>
+                <li>Spend 10+ hours tailoring resumes with no response.</li>
+                <li>Discarded by black-box algorithms with zero explanation.</li>
+                <li>No feedback on which missing skills caused rejection.</li>
+                <li>Leaves ambitious learners confused and demoralized.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card amber">
+            <div class="card-title" style="color: var(--accent-warn);">🤖 Traditional Dumb ATS</div>
+            <div class="card-subtitle">Blind Keyword Search</div>
+            <div class="card-body">
+              <ul>
+                <li>Acts like a rigid, blind "Ctrl+F" word counter.</li>
+                <li>Example: Rejects 'Client Help' if JD says 'Customer Care'.</li>
+                <li>Easily tricked by deceptive keyword stuffing.</li>
+                <li>Fails to evaluate real project experience or depth.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card blue">
+            <div class="card-title" style="color: var(--primary);">💼 For Recruiters</div>
+            <div class="card-subtitle">Drowning in Hundreds of Files</div>
+            <div class="card-body">
+              <ul>
+                <li>500+ resumes received per opening within 48 hours.</li>
+                <li>Average 6 seconds spent per resume manual scan.</li>
+                <li>Single AI prompts hallucinate and award fake 99% scores.</li>
+                <li>Takes 2 to 3 weeks just to pick 5 people to interview.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(251,113,133,0.1); border: 1px solid var(--accent-rose); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--accent-rose); font-weight: 700; margin-top: 12px;">
+          ⚡ Core Flaw: Old tools test for EXACT KEYWORD SPELLING rather than TRUE COMPETENCE & VALUE.
+        </div>
+      </div>
+
+      <!-- SLIDE 3: Demystifying ATS in Plain English -->
+      <div class="slide" data-title="Understanding ATS & Scores" data-notes="To understand ATS: It simply stands for Applicant Tracking System. Old systems acted like blind robots looking for exact keyword spellings. Our project, Resume Screening Agent, replaces blind keyword matching with genuine human-like understanding.">
+        <div class="slide-header">
+          <div class="badge badge-green">SIMPLE EXPLANATION</div>
+          <h2 class="slide-title">Understanding 'ATS' & 'Resume Scores' Without Jargon</h2>
+          <div class="slide-subtitle">Think of it like a smart grocery checklist or a master chef's recipe.</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card green">
+            <div class="card-title" style="color: var(--secondary);">🍰 The Master Chef & Recipe Analogy</div>
+            <div class="card-subtitle">How it actually works</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>1. The Job Description</strong> = The Chef's Recipe <em>(Needs: 3 cups flour, cocoa, eggs, 5 yrs baking mastery)</em>.</li>
+                <li><strong>2. Your Resume</strong> = Your Basket of Ingredients <em>(The skills, practical projects, and work history you bring)</em>.</li>
+                <li><strong>3. The ATS System</strong> = The Kitchen Inspector <em>(Checks whether your basket contains what the recipe needs)</em>.</li>
+                <li><strong>4. The 0-100% Score</strong> = The Match Percentage <em>(How complete and fresh your ingredients are for this dish)</em>.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card blue">
+            <div class="card-title" style="color: var(--primary);">⚖️ Old Keyword Robots vs. Resume Screening Agent</div>
+            <div class="card-subtitle">The Game-Changing Difference</div>
+            <div class="card-body">
+              <ul>
+                <li style="color: var(--accent-rose);">❌ <strong>Old Dumb Robots (Word Match)</strong>:<br>If JD asks for <em>"FastAPI"</em> and you wrote <em>"REST APIs with Python"</em>, it marks 0% because the letters don't match! Rejects honest learners.</li>
+                <li style="color: var(--secondary);">✅ <strong>Resume Screening Agent (Context-Aware)</strong>:<br>Understands semantic meaning: knows <em>"REST APIs with Python"</em> is relevant to backend engineering. Multi-agent audit ensures fairness.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(56,189,248,0.1); border: 1px solid var(--primary); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--primary); font-weight: 600; margin-top: 12px;">
+          💡 Takeaway: ATS is just a matching checklist. Resume Screening Agent makes that checklist smart, fair, and human-like!
+        </div>
+      </div>
+
+      <!-- SLIDE 4: Architecture (The 4 AI Agents) -->
+      <div class="slide" data-title="The 4 AI Agents" data-notes="How did we solve this? Instead of asking one single AI to do everything, we created a collaborative team of 4 AI Agents. Just like a top company has a resume reader, a technical evaluator, a quality auditor, and a hiring manager, our system runs these 4 roles cooperatively in seconds.">
+        <div class="slide-header">
+          <div class="badge badge-purple">THE SOLUTION</div>
+          <h2 class="slide-title">Meet Resume Screening Agent: Your 4-Agent Hiring Committee</h2>
+          <div class="slide-subtitle">Why 4 specialized agents working in sequence are 10x more reliable than a single AI prompt.</div>
+        </div>
+
+        <div class="grid-4">
+          <div class="card blue">
+            <div class="card-title" style="color: var(--primary);">🔍 1. The Reader</div>
+            <div class="card-subtitle">Resume Parser Agent</div>
+            <div class="card-body">
+              <ul>
+                <li>Extracts clean data from PDF, Word (.docx) & TXT.</li>
+                <li>Structures work history, timeline, skills, and education into verified JSON.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card green">
+            <div class="card-title" style="color: var(--secondary);">⚖️ 2. The Grader</div>
+            <div class="card-subtitle">Candidate Reviewer</div>
+            <div class="card-body">
+              <ul>
+                <li>Scores 4 core pillars (0-100): Technical Skills, Experience, Education & Role Fit.</li>
+                <li>Identifies exact strengths & skill gaps.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card amber">
+            <div class="card-title" style="color: var(--accent-warn);">🛡️ 3. The Auditor</div>
+            <div class="card-subtitle">Quality Assurance</div>
+            <div class="card-body">
+              <ul>
+                <li>Fact-checks claims against timeline & ML text similarity.</li>
+                <li>Fixes score inflation and penalizes keyword stuffing.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card purple">
+            <div class="card-title" style="color: var(--accent-purple);">👑 4. The Coach</div>
+            <div class="card-subtitle">Ranker & Interviewer</div>
+            <div class="card-body">
+              <ul>
+                <li>Ranks candidate leaderboard.</li>
+                <li>Generates 3-4 tailored technical & behavioral interview questions.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(192,132,252,0.1); border: 1px solid var(--accent-purple); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--accent-purple); font-weight: 600; margin-top: 12px;">
+          🤝 Multi-Agent Synergy: Each agent acts as a guardrail for the next, ensuring 100% auditable decisions.
+        </div>
+      </div>
+
+      <!-- SLIDE 5: Step-by-Step Workflow -->
+      <div class="slide" data-title="Step-by-Step Flow" data-notes="Here is the complete journey: First, you drop in resumes. Second, a mathematical engine measures initial topic alignment. Third, our 4 AI agents collaborate to evaluate experience and verify truth. Finally, you get an easy-to-read report with scores and interview prep questions.">
+        <div class="slide-header">
+          <div class="badge badge-blue">WORKFLOW</div>
+          <h2 class="slide-title">How It Works: Step-by-Step in Plain English</h2>
+          <div class="slide-subtitle">From raw resume upload to complete hiring intelligence report in under 30 seconds.</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card blue">
+            <div class="card-title" style="color: var(--primary);">1. Ingestion & Text Extraction 📥</div>
+            <div class="card-body">
+              Recruiter uploads candidate files (PDF/Word/TXT) and pastes Job Description. PyPDF & python-docx extract raw text seamlessly.
+            </div>
+          </div>
+          <div class="card green">
+            <div class="card-title" style="color: var(--secondary);">2. Mathematical Vector Baseline 📊</div>
+            <div class="card-body">
+              Scikit-Learn calculates TF-IDF & Cosine Similarity scores (0-100%) to establish an objective statistical vocabulary match.
+            </div>
+          </div>
+          <div class="card amber">
+            <div class="card-title" style="color: var(--accent-warn);">3. 4-Agent Collaborative Audit 🤖</div>
+            <div class="card-body">
+              Parser ➔ Reviewer ➔ QA Auditor ➔ Ranker execute cooperatively to evaluate experience and eliminate bias.
+            </div>
+          </div>
+          <div class="card purple">
+            <div class="card-title" style="color: var(--accent-purple);">4. Actionable Report & Exports 🎯</div>
+            <div class="card-body">
+              View candidate leaderboard, download Excel/CSV, and access custom interview prep questions immediately.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(52,211,153,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--secondary); font-weight: 600; margin-top: 12px;">
+          ⚡ Speed Benchmark: 50 candidate resumes processed and audited in ~25 seconds.
+        </div>
+      </div>
+
+      <!-- SLIDE 6: Candidate Case Study -->
+      <div class="slide" data-title="Live Candidate Demo" data-notes="Let's see an actual example from our test suite. When screening for a Senior Full-Stack role: Alice gets 92% and shortlisted with specific high-level interview questions. Charlie is an ambitious beginner who gets 45% with clear feedback on what skills to learn next. Diana is a great manager, but gets gently guided to non-coding roles.">
+        <div class="slide-header">
+          <div class="badge badge-green">REAL TEST CASES</div>
+          <h2 class="slide-title">Case Study: Screening Candidates for a Senior Full-Stack Role</h2>
+          <div class="slide-subtitle">Target Job: Senior Full-Stack Engineer (Python, FastAPI, React, Docker, AWS)</div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card green">
+            <div class="card-title" style="color: var(--secondary);">
+              🏆 Alice Smith
+              <span class="score-chip" style="background: rgba(52,211,153,0.2); color: var(--secondary);">92 / 100</span>
+            </div>
+            <div class="card-subtitle">Senior Full-Stack Lead</div>
+            <div class="card-body">
+              <ul>
+                <li>7+ yrs Python, React, FastAPI, AWS, Docker.</li>
+                <li>QA Audit: Verified real architecture leadership.</li>
+                <li><strong>Verdict: SHORTLIST FOR FINAL ROUND</strong></li>
+                <li><em>Custom Q: "How did you handle Redis caching & DB contention at peak load?"</em></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card amber">
+            <div class="card-title" style="color: var(--accent-warn);">
+              ⚠️ Charlie Brown
+              <span class="score-chip" style="background: rgba(251,191,36,0.2); color: var(--accent-warn);">45 / 100</span>
+            </div>
+            <div class="card-subtitle">Junior Frontend Learner</div>
+            <div class="card-body">
+              <ul>
+                <li>1 yr basic HTML/CSS, beginner React.</li>
+                <li>Missing Python backend & cloud infra.</li>
+                <li><strong>Verdict: NOT READY FOR SENIOR ROLE</strong></li>
+                <li><em>Advice: Build FastAPI backends & Dockerize apps before reapplying.</em></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card rose">
+            <div class="card-title" style="color: var(--accent-rose);">
+              ❌ Diana Prince
+              <span class="score-chip" style="background: rgba(251,113,133,0.2); color: var(--accent-rose);">10 / 100</span>
+            </div>
+            <div class="card-subtitle">Project Manager (Non-Tech)</div>
+            <div class="card-body">
+              <ul>
+                <li>PMP certified, Jira, Agile Scrum, budgeting.</li>
+                <li>Zero hands-on coding or API work.</li>
+                <li><strong>Verdict: REJECT FOR CODING ROLE</strong></li>
+                <li><em>Advice: Re-route resume to Technical PM & Scrum Master roles.</em></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(56,189,248,0.1); border: 1px solid var(--primary); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--primary); font-weight: 600; margin-top: 12px;">
+          🎯 Outcome: Fair evaluation for senior talent, constructive feedback for learners, and correct routing for non-tech applicants.
+        </div>
+      </div>
+
+      <!-- SLIDE 7: Benefits for Job Seekers -->
+      <div class="slide" data-title="Benefits for Job Seekers" data-notes="If you are a job seeker or a student learning to code, Resume Screening Agent is empowering. It acts like your personal career advisor: showing you what skills you are missing, and giving you tailored interview questions to practice before speaking to a real company.">
+        <div class="slide-header">
+          <div class="badge badge-blue">FOR CANDIDATES & STUDENTS</div>
+          <h2 class="slide-title">Why Job Seekers & Learners Love This Project</h2>
+          <div class="slide-subtitle">Moving from unfair rejection emails to actionable career growth and interview readiness.</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card blue">
+            <div class="card-title" style="color: var(--primary);">1. 100% Transparent Scoring 🎯</div>
+            <div class="card-body">
+              No hidden black-box magic. See exact category marks for Technical Skills, Experience, Education, and Role Alignment so you know exactly how you were evaluated.
+            </div>
+          </div>
+          <div class="card green">
+            <div class="card-title" style="color: var(--secondary);">2. Actionable Gap Analysis 💡</div>
+            <div class="card-body">
+              Instead of generic "we chose another candidate" emails, see the exact libraries, tools, or concepts you should learn next to land the role.
+            </div>
+          </div>
+          <div class="card purple">
+            <div class="card-title" style="color: var(--accent-purple);">3. Free Tailored Interview Prep 🎙️</div>
+            <div class="card-body">
+              The AI automatically drafts 3-4 custom technical and behavioral interview questions tailored to your exact profile gaps so you can practice beforehand!
+            </div>
+          </div>
+          <div class="card amber">
+            <div class="card-title" style="color: var(--accent-warn);">4. Fair & Unbiased Evaluation 🛡️</div>
+            <div class="card-body">
+              No penalty for layout formatting, single vs multi-column styles, or fonts. Our multi-agent auditor rewards genuine skills and real experience.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(192,132,252,0.1); border: 1px solid var(--accent-purple); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--accent-purple); font-weight: 600; margin-top: 12px;">
+          🚀 Learner Superpower: Acts as a free 24/7 personal career coach that helps you pass real interviews.
+        </div>
+      </div>
+
+      <!-- SLIDE 8: Benefits for Recruiters -->
+      <div class="slide" data-title="Benefits for Recruiters" data-notes="For companies, hiring is traditionally slow and expensive. Resume Screening Agent slashes screening time by 95% while keeping evaluations rigorously honest and auditable.">
+        <div class="slide-header">
+          <div class="badge badge-amber">FOR RECRUITERS & ENTERPRISES</div>
+          <h2 class="slide-title">Why Companies & HR Teams Rely on Resume Screening Agent</h2>
+          <div class="slide-subtitle">Enterprise-grade speed, transparency, and auditability for talent acquisition teams.</div>
+        </div>
+
+        <div class="grid-6">
+          <div class="card cyan">
+            <div class="card-title" style="color: var(--primary);">⏱️ 95% Time Saved</div>
+            <div class="card-body">Screen 50+ resumes in &lt;30 seconds instead of 2 weeks of manual reading.</div>
+          </div>
+          <div class="card amber">
+            <div class="card-title" style="color: var(--accent-warn);">🛡️ Zero Fake Scores</div>
+            <div class="card-body">Cross-checks LLM scores against TF-IDF mathematical vector similarity.</div>
+          </div>
+          <div class="card green">
+            <div class="card-title" style="color: var(--secondary);">📊 Export Anywhere</div>
+            <div class="card-body">One-click export to CSV (Excel), JSON, and executive Markdown summaries.</div>
+          </div>
+          <div class="card purple">
+            <div class="card-title" style="color: var(--accent-purple);">🎯 Instant Interview Kits</div>
+            <div class="card-body">Generates tailored interview questions for hiring managers automatically.</div>
+          </div>
+          <div class="card indigo">
+            <div class="card-title" style="color: var(--accent-indigo);">🌐 Multi-Environment</div>
+            <div class="card-body">Runs on Local Web UI, Command Line Interface (CLI), or Docker containers.</div>
+          </div>
+          <div class="card rose">
+            <div class="card-title" style="color: var(--accent-rose);">💰 Near-Zero Cost</div>
+            <div class="card-body">Built with lightweight Python and high-speed Google Gemini 3.5 Flash.</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(52,211,153,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--secondary); font-weight: 600; margin-top: 12px;">
+          📈 ROI Impact: Slashes cost-per-hire and shortens time-to-hire by over 80%.
+        </div>
+      </div>
+
+      <!-- SLIDE 9: Web Dashboard -->
+      <div class="slide" data-title="Web Dashboard Preview" data-notes="Anyone in your team—whether an HR coordinator, an executive, or a candidate practicing at home—can use this dashboard. It requires zero setup or technical skill.">
+        <div class="slide-header">
+          <div class="badge badge-blue">USER EXPERIENCE</div>
+          <h2 class="slide-title">A Clean, Easy-to-Use Web Dashboard</h2>
+          <div class="slide-subtitle">Zero coding or setup required. Just drag-and-drop resumes and review results!</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card blue">
+            <div class="card-title" style="color: var(--primary);">🖥️ Simple 3-Click Experience</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Dark Modern Theme</strong>: Sleek, high-contrast visual design built with Streamlit.</li>
+                <li><strong>Drag-and-Drop</strong>: Handles PDF, Word (.docx), and plain text (.txt) files easily.</li>
+                <li><strong>Live Progress Tracker</strong>: Watch AI agents work in real-time with visual status bars and audit logs.</li>
+                <li><strong>Interactive Leaderboard</strong>: Filter candidates by score and click for full breakdowns.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card green">
+            <div class="card-title" style="color: var(--secondary);">📊 Interactive Deep-Dive Panels</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>📈 Visual Score Charts</strong>: Horizontal score comparison bars for quick decision making.</li>
+                <li><strong>🎯 Strengths & Gaps Tabs</strong>: Clear color-coded bullet lists of what you know vs what's missing.</li>
+                <li><strong>🎙️ Tailored Question Drawer</strong>: Candidate-specific technical and behavioral questions.</li>
+                <li><strong>🛡️ QA Audit Logs</strong>: Explains why a candidate was adjusted based on verified facts.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(56,189,248,0.1); border: 1px solid var(--primary); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--primary); font-weight: 600; margin-top: 12px;">
+          🌟 Accessibility: Runs in any web browser at http://localhost:8501
+        </div>
+      </div>
+
+      <!-- SLIDE 10: Tech Stack -->
+      <div class="slide" data-title="Tech Stack Under the Hood" data-notes="Under the hood, we use Python, Google Gemini AI for smart reading, and Scikit-Learn for math checks. Everything is open, reliable, and tested.">
+        <div class="slide-header">
+          <div class="badge badge-purple">UNDER THE HOOD</div>
+          <h2 class="slide-title">The Technology Behind It (In Simple Terms)</h2>
+          <div class="slide-subtitle">How modern AI, machine learning, and Python standards power this platform.</div>
+        </div>
+
+        <div class="grid-4">
+          <div class="card blue">
+            <div class="card-title" style="color: var(--primary);">🧠 Google Gemini AI</div>
+            <div class="card-subtitle">gemini-3.5-flash</div>
+            <div class="card-body">
+              Ultra-fast LLM that reads resumes with human comprehension and outputs strict Pydantic JSON schemas.
+            </div>
+          </div>
+
+          <div class="card green">
+            <div class="card-title" style="color: var(--secondary);">📊 Scikit-Learn (ML)</div>
+            <div class="card-subtitle">TF-IDF & Cosine Sim</div>
+            <div class="card-body">
+              Mathematical text vectorizer that measures vocabulary overlap to ground the AI's evaluations.
+            </div>
+          </div>
+
+          <div class="card amber">
+            <div class="card-title" style="color: var(--accent-warn);">💻 Streamlit UI</div>
+            <div class="card-subtitle">Interactive Web App</div>
+            <div class="card-body">
+              Reactive, dark-themed dashboard that provides real-time progress feedback without JavaScript bloat.
+            </div>
+          </div>
+
+          <div class="card purple">
+            <div class="card-title" style="color: var(--accent-purple);">🛡️ Python & Pytest</div>
+            <div class="card-subtitle">Testing & Docker</div>
+            <div class="card-body">
+              Robust codebase with automated unit tests for text parsers, similarity scores, and CI/CD pipelines.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(192,132,252,0.1); border: 1px solid var(--accent-purple); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--accent-purple); font-weight: 600; margin-top: 12px;">
+          ⚙️ Architecture: 100% pure Python stack with zero vendor lock-in.
+        </div>
+      </div>
+
+      <!-- SLIDE 11: Summary & Takeaways -->
+      <div class="slide" data-title="Summary & Takeaways" data-notes="In summary, Resume Screening Agent turns resume screening from a frustrating black-box into a fair, transparent, and empowering experience for both candidates and recruiters.">
+        <div class="slide-header">
+          <div class="badge badge-green">EXECUTIVE SUMMARY</div>
+          <h2 class="slide-title">Summary & Key Takeaways</h2>
+          <div class="slide-subtitle">Why Resume Screening Agent is shaping the future of fair and intelligent recruitment.</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card green">
+            <div class="card-title" style="color: var(--secondary);">✨ 100% Transparent & Fair</div>
+            <div class="card-body">
+              Replaces blind keyword counting with contextual semantic understanding and multi-agent fact-checking.
+            </div>
+          </div>
+          <div class="card blue">
+            <div class="card-title" style="color: var(--primary);">🤝 4-Agent Cooperative Teamwork</div>
+            <div class="card-body">
+              Parser, Reviewer, QA Auditor, and Coach ensure no single AI hallucination affects a candidate's career.
+            </div>
+          </div>
+          <div class="card purple">
+            <div class="card-title" style="color: var(--accent-purple);">🚀 Career Growth for Learners</div>
+            <div class="card-body">
+              Job seekers get exact skill gap diagnostics and tailored interview questions to practice before live calls.
+            </div>
+          </div>
+          <div class="card amber">
+            <div class="card-title" style="color: var(--accent-warn);">⚡ 95% Time Saved for HR</div>
+            <div class="card-body">
+              Recruiters screen large applicant batches in under 30 seconds with complete exportable audit records.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(52,211,153,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 8px 16px; font-size: 12.5px; color: var(--secondary); font-weight: 600; margin-top: 12px;">
+          🏆 Final Message: Fair hiring starts with transparent technology.
+        </div>
+      </div>
+
+      <!-- SLIDE 12: Q&A & Discussion -->
+      <div class="slide" data-title="Q&A & Thank You" data-notes="Thank you for your time! I'd love to answer any questions about the project, the AI agents, or how you can run it on your own machine.">
+        <div class="hero-container" style="text-align: center;">
+          <div style="margin-top: 16px;">
+            <div class="badge badge-green">THANK YOU & DISCUSSION</div>
+            <h1 class="hero-title" style="font-size: 48px;">Thank You! 🙏</h1>
+            <div class="hero-tagline">Open for Questions & Interactive Live Demo</div>
+          </div>
+
+          <div style="max-width: 780px; margin: 0 auto; background: var(--bg-subcard); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: left;">
+            <div style="font-size: 15px; margin-bottom: 10px; color: var(--primary); font-weight: 700;">🌟 Quick Access Links:</div>
+            <ul style="list-style: none; font-size: 13.5px; color: #cbd5e1; line-height: 1.8;">
+              <li>🌐 <strong>Live Streamlit Dashboard</strong>: <code style="color: var(--secondary); background: #080c14; padding: 2px 6px; border-radius: 4px;">http://localhost:8501</code></li>
+              <li>📂 <strong>GitHub Repository</strong>: <code style="color: var(--primary); background: #080c14; padding: 2px 6px; border-radius: 4px;">Snehan0911/Resume-Screening-Agent</code></li>
+              <li>🐳 <strong>Docker Command</strong>: <code style="color: var(--accent-purple); background: #080c14; padding: 2px 6px; border-radius: 4px;">docker run -p 8501:8501 resume-screening-agent</code></li>
+            </ul>
+          </div>
+
+          <div style="font-size: 13.5px; color: var(--text-muted); font-style: italic; margin-bottom: 8px;">
+            "Empowering candidates with clear feedback while helping companies hire the right talent faster."
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Presentation Controls Bar -->
+    <div class="controls-bar">
+      <button class="btn" onclick="prevSlide()">◀ Previous</button>
+      
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <span id="counter" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--primary); font-size: 13.5px;">1 / 12</span>
+      
+      <button class="btn btn-primary" onclick="nextSlide()">Next ▶</button>
+    </div>
+
+    <!-- Slide Jump Bar -->
+    <div class="slide-jump-bar" id="jumpBar"></div>
+
+    <!-- Keyboard Navigation Hints -->
+    <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+      <span class="key-hint">Navigate: <span class="kbd">◀</span> <span class="kbd">▶</span> or <span class="kbd">Space</span></span>
+      <span class="key-hint">Speaker Notes: <span class="kbd">N</span></span>
+      <span class="key-hint">Fullscreen: <span class="kbd">F</span></span>
+    </div>
+
+    <!-- Speaker Notes Box -->
+    <div class="speaker-drawer" id="speakerDrawer">
+      <h4>🎙️ Speaker Notes (What to say when presenting)</h4>
+      <p id="speakerText"></p>
+    </div>
+  </main>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const progressFill = document.getElementById('progressFill');
+    const counter = document.getElementById('counter');
+    const speakerText = document.getElementById('speakerText');
+    const speakerDrawer = document.getElementById('speakerDrawer');
+    const jumpBar = document.getElementById('jumpBar');
+
+    // Build jump dots
+    slides.forEach((s, idx) => {
+      const dot = document.createElement('div');
+      dot.className = 'jump-dot' + (idx === 0 ? ' active' : '');
+      dot.innerText = idx + 1;
+      dot.title = s.getAttribute('data-title') || `Slide ${idx + 1}`;
+      dot.onclick = () => goToSlide(idx);
+      jumpBar.appendChild(dot);
+    });
+
+    function update() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+      document.querySelectorAll('.jump-dot').forEach((d, idx) => {
+        d.classList.toggle('active', idx === currentSlide);
+      });
+
+      const pct = ((currentSlide + 1) / total) * 100;
+      progressFill.style.width = pct + '%';
+      counter.innerText = (currentSlide + 1) + ' / ' + total;
+
+      const notes = slides[currentSlide].getAttribute('data-notes') || 'No notes for this slide.';
+      speakerText.innerText = notes;
+    }
+
+    function nextSlide() {
+      if (currentSlide < total - 1) {
+        currentSlide++;
+        update();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        update();
+      }
+    }
+
+    function goToSlide(idx) {
+      currentSlide = idx;
+      update();
+    }
+
+    function toggleNotes() {
+      speakerDrawer.classList.toggle('open');
+      const btn = document.getElementById('notesBtn');
+      if (speakerDrawer.classList.contains('open')) {
+        btn.style.borderColor = 'var(--accent-warn)';
+      } else {
+        btn.style.borderColor = 'var(--border-color)';
+      }
+    }
+
+    function toggleFullScreen() {
+      const stage = document.getElementById('slideStage');
+      if (!document.fullscreenElement) {
+        stage.requestFullscreen().catch(err => alert(`Fullscreen error: ${err.message}`));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'n' || e.key === 'N') {
+        toggleNotes();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

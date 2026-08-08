@@ -4,6 +4,8 @@ import tempfile
 import time
 import pandas as pd
 import streamlit as st
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -96,9 +98,9 @@ with st.sidebar:
     
     model_choice = st.selectbox(
         "Gemini Core Model",
-        options=["gemini-3.5-flash", "gemini-2.0-flash", "gemini-2.5-pro"],
+        options=["gemini-flash-latest", "gemini-3-flash-preview", "gemini-3.5-flash", "gemini-2.0-flash"],
         index=0,
-        help="Select the AI brain models for the collaborative agents."
+        help="Select the primary Gemini model for collaborative agents (automatic fallback cascade enabled)."
     )
     
     st.markdown("---")
@@ -220,6 +222,7 @@ if st.session_state.screening_results is not None:
     results = st.session_state.screening_results
     candidates_list = results["candidates"]
     report = results["ranking_report"]
+    jd_analysis = results.get("jd_analysis")
     
     # Header reset and download actions
     col_hdr, col_btn1, col_btn2, col_btn3, col_btn4 = st.columns([1.5, 1.0, 1.2, 1.2, 1.1])
@@ -233,9 +236,10 @@ if st.session_state.screening_results is not None:
         
     # 2. Download Recruiter Report action
     # Compile Markdown report
+    role_name = getattr(jd_analysis, 'role_title', 'Target Position') if jd_analysis else 'Target Position'
     report_md = f"""# Resume Screening Agent - Recruiter Batch Report
 Date: {time.strftime('%Y-%m-%d')}
-Role Title: {jd_analysis.role_title if jd_analysis else 'Target Position'}
+Role Title: {role_name}
 
 ## 💡 Batch Overview Findings
 {report['overall_summary']}
@@ -405,49 +409,61 @@ Role Title: {jd_analysis.role_title if jd_analysis else 'Target Position'}
         st.dataframe(df, use_container_width=True, hide_index=True)
         
         # Render horizontal bar chart of scores
-        st.markdown("#### 📈 Matplotlib Score Comparison")
-        fig, ax = plt.subplots(figsize=(6, 4))
-        fig.patch.set_facecolor('#0f172a')
-        ax.set_facecolor('#0f172a')
+        st.markdown("#### 📈 Candidate Score Comparison")
+        raw_cands = report.get("candidates", []) if isinstance(report, dict) else getattr(report, "candidates", [])
         
-        # Prepare graph data
-        names = [c["name"] for c in report["candidates"]][::-1]
-        final_scores = [c["overall_score"] for c in report["candidates"]][::-1]
-        
-        # Map colors based on scores
-        colors = []
-        for s in final_scores:
-            if s >= 80:
-                colors.append('#10b981') # green
-            elif s >= 60:
-                colors.append('#f59e0b') # orange
-            else:
-                colors.append('#f43f5e') # red
+        try:
+            # Prepare graph data safely
+            names = []
+            final_scores = []
+            for c in reversed(raw_cands):
+                c_name = c["name"] if isinstance(c, dict) else getattr(c, "name", "Candidate")
+                c_score = c["overall_score"] if isinstance(c, dict) else getattr(c, "overall_score", 0.0)
+                names.append(str(c_name))
+                final_scores.append(float(c_score))
                 
-        bars = ax.barh(names, final_scores, color=colors, height=0.6)
-        
-        # Labels and design styling
-        ax.set_title("Audited Overall Score Breakdown", color='#f1f5f9', fontsize=12, fontweight='bold')
-        ax.set_xlabel("Overall Score (0-100%)", color='#94a3b8', fontsize=10)
-        ax.tick_params(colors='#94a3b8', labelsize=9)
-        ax.set_xlim(0, 105)
-        
-        # Grid lines
-        ax.grid(axis='x', color='rgba(255, 255, 255, 0.05)', linestyle='--')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_color('rgba(255, 255, 255, 0.1)')
-        ax.spines['bottom'].set_color('rgba(255, 255, 255, 0.1)')
-        
-        # Add labels to the ends of the bars
-        for bar in bars:
-            width = bar.get_width()
-            ax.text(width + 2, bar.get_y() + bar.get_height()/2, f'{width:.0f}%', 
-                    va='center', ha='left', color='#f1f5f9', fontsize=8, fontweight='bold')
-            
-        plt.tight_layout()
-        st.pyplot(fig)
-        plt.close(fig)
+            if names and final_scores:
+                fig_h = max(3.5, len(names) * 0.7)
+                fig, ax = plt.subplots(figsize=(6, fig_h))
+                fig.patch.set_facecolor('#0f172a')
+                ax.set_facecolor('#0f172a')
+                
+                colors = []
+                for s in final_scores:
+                    if s >= 80:
+                        colors.append('#10b981') # emerald green
+                    elif s >= 60:
+                        colors.append('#f59e0b') # amber orange
+                    else:
+                        colors.append('#f43f5e') # rose red
+                        
+                bars = ax.barh(names, final_scores, color=colors, height=0.55)
+                
+                ax.set_title("Audited Overall Score Breakdown", color='#f1f5f9', fontsize=11, fontweight='bold', pad=10)
+                ax.set_xlabel("Overall Score (0-100%)", color='#94a3b8', fontsize=9)
+                ax.tick_params(colors='#94a3b8', labelsize=9)
+                ax.set_xlim(0, 105)
+                
+                ax.grid(axis='x', color='rgba(255, 255, 255, 0.07)', linestyle='--')
+                for spine in ax.spines.values():
+                    spine.set_color('rgba(255, 255, 255, 0.12)')
+                    
+                for bar in bars:
+                    width = bar.get_width()
+                    ax.text(width + 2, bar.get_y() + bar.get_height()/2, f'{width:.0f}%', 
+                            va='center', ha='left', color='#f1f5f9', fontsize=8.5, fontweight='bold')
+                    
+                plt.tight_layout()
+                st.pyplot(fig, use_container_width=True)
+                plt.close(fig)
+            else:
+                st.info("No candidates available for chart display.")
+        except Exception as chart_err:
+            # Interactive Streamlit chart fallback
+            chart_df = pd.DataFrame({
+                "Score (%)": [float(c.get("overall_score", 0.0) if isinstance(c, dict) else getattr(c, "overall_score", 0.0)) for c in raw_cands]
+            }, index=[c.get("name", "Candidate") if isinstance(c, dict) else getattr(c, "name", "Candidate") for c in raw_cands])
+            st.bar_chart(chart_df)
         
     with col_right:
         st.markdown("#### 🔍 Candidate Detailed Profile Audit")

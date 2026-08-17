@@ -4,7 +4,7 @@
 
 ![Resume Screening Agent Cover Banner](./assets/banner.png)
 
-## 📖 Introduction & Cover Page
+## 📖 Introduction & Cover Page 
 
 Welcome to **Resume Screening Agent** - a state-of-the-art collaborative Multi-Agent Resume Screening platform designed to automate, optimize, and audit candidate resume profiles against target Job Descriptions. 
 

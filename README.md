@@ -19,7 +19,7 @@ This platform represents **honest engineering** designed to solve a critical HR 
 
 ## ⚡ Quick Start Details
 
-Get the entire project running in **3 simple steps**:
+Get the entire project running in **3 simple steps** :
 
 1.  **Configure API Credentials**:
     *   Create a file named `.env` in the root directory.

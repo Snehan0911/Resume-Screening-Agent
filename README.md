@@ -43,7 +43,7 @@ Get the entire project running in **3 simple steps** :
         ```bash
         streamlit run app.py
         ```
-        Open your browser to: **`http://localhost:8501`**.
+        Open your browser to: **`[http://localhost:8501](https://resume-screening-agent-kjzscaefcqf2sf5dxj6gha.streamlit.app/)`**.
     *   **Option B: Run from Command Line (CLI)**:
         Run the screening process on a folder of resumes directly from the terminal:
         ```bash

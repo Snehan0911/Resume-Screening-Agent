@@ -65,6 +65,8 @@ Get the entire project running in **3 simple steps** :
         docker run -p 8501:8501 --env-file .env resume-screening-agent
         ```
         Open your browser to: **`http://localhost:8501`**.
+    *   **Option D: Run in Jupyter Notebook (All-in-One)**:
+        Open and run [`Resume_Screening_Agent.ipynb`](./Resume_Screening_Agent.ipynb) for an interactive, end-to-end workflow containing all pipeline stages, agents, and analytics in a single file.
 
 4.  **Run the Testing Suite**:
     *   Verify text parsing, NLP similarities, and schema serialization:

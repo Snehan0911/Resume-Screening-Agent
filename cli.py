@@ -40,8 +40,8 @@ def main():
     )
     parser.add_argument(
         "--model",
-        default="gemini-3.5-flash-lite",
-        help="Gemini Core model to use (default: gemini-3.5-flash-lite)."
+        default="gemini-3.8-flash",
+        help="Gemini Core model to use (default: gemini-3.8-flash)."
     )
 
     args = parser.parse_args()

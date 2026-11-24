@@ -32,7 +32,9 @@ if api_key:
 else:
     logger.warning("GEMINI_API_KEY not found in environment. Gemini API calls will fail.")
 
-MODEL_NAME = "gemini-3.5-flash-lite"
+MODEL_NAME = "gemini-3.8-flash"
+
+EXHAUSTED_OR_UNAVAILABLE_MODELS = set()
 
 def get_model(model_name: str = MODEL_NAME) -> genai.GenerativeModel:
     return genai.GenerativeModel(model_name)
@@ -82,13 +84,28 @@ def generate_structured_json(
     """
     candidate_models = [
         preferred_model,
+        "gemini-3.8-flash",
+        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
         "gemini-3.5-flash-lite",
         "gemini-3.5-flash",
         "gemini-3.1-flash-lite",
-        "gemini-flash-latest"
+        "gemini-pro-latest"
     ]
     seen = set()
-    ordered_models = [m for m in candidate_models if not (m in seen or seen.add(m))]
+    ordered_models = []
+    for m in candidate_models:
+        if m and m not in seen and m not in EXHAUSTED_OR_UNAVAILABLE_MODELS:
+            seen.add(m)
+            ordered_models.append(m)
+
+    # If all models in the list were marked exhausted, reset cache and try them
+    if not ordered_models:
+        EXHAUSTED_OR_UNAVAILABLE_MODELS.clear()
+        for m in candidate_models:
+            if m and m not in seen:
+                seen.add(m)
+                ordered_models.append(m)
 
     # Convert Pydantic schema to clean inlined schema dict without '$defs' or 'default' fields
     clean_response_schema = clean_schema_for_gemini(schema)
@@ -119,12 +136,16 @@ def generate_structured_json(
             return json.loads(raw_text)
         except Exception as e:
             last_error = e
+            err_str = str(e).lower()
+            # If model is deprecated (404) or daily quota is exceeded, skip for remainder of run
+            if "404" in err_str or "no longer available" in err_str or "per day limit exceeded" in err_str:
+                EXHAUSTED_OR_UNAVAILABLE_MODELS.add(model_candidate)
+
             if log_callback:
                 log_callback(f"Model {model_candidate} warning: {str(e)[:80]}. Trying next fallback model...")
             # If rate limit or temporary server spike, briefly pause before trying next candidate
-            err_str = str(e).lower()
-            if "429" in err_str or "503" in err_str or "quota" in err_str or "exhausted" in err_str:
-                time.sleep(1.5)
+            if ("429" in err_str or "503" in err_str or "quota" in err_str or "exhausted" in err_str) and "per day" not in err_str:
+                time.sleep(1.0)
             continue
 
     raise RuntimeError(f"All Gemini models failed. Last error: {str(last_error)}")

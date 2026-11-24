@@ -152,7 +152,15 @@ with st.sidebar:
     
     model_choice = st.selectbox(
         "Gemini Core Model",
-        options=["gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest"],
+        options=[
+            "gemini-3.8-flash",
+            "gemini-flash-latest",
+            "gemini-flash-lite-latest",
+            "gemini-3.5-flash-lite",
+            "gemini-3.5-flash",
+            "gemini-3.1-flash-lite",
+            "gemini-pro-latest"
+        ],
         index=0,
         help="Select the primary Gemini model for collaborative agents (automatic fallback cascade enabled)."
     )

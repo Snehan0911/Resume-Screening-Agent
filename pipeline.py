@@ -72,7 +72,8 @@ def generate_structured_json(
     prompt: str,
     schema: Any,
     preferred_model: str = MODEL_NAME,
-    temperature: float = 0.1,
+    temperature: float = 0.3,
+    max_output_tokens: Optional[int] = None,
     log_callback: Optional[Callable[[str], None]] = None
 ) -> Dict[str, Any]:
     """
@@ -97,13 +98,17 @@ def generate_structured_json(
     for model_candidate in ordered_models:
         try:
             model = get_model(model_candidate)
+            config_kwargs = {
+                "response_mime_type": "application/json",
+                "response_schema": clean_response_schema,
+                "temperature": temperature
+            }
+            if max_output_tokens:
+                config_kwargs["max_output_tokens"] = max_output_tokens
+
             response = model.generate_content(
                 prompt,
-                generation_config=genai.GenerationConfig(
-                    response_mime_type="application/json",
-                    response_schema=clean_response_schema,
-                    temperature=temperature
-                )
+                generation_config=genai.GenerationConfig(**config_kwargs)
             )
             raw_text = response.text.strip()
             # Clean markdown code blocks if present
@@ -186,6 +191,70 @@ def extract_text_from_file(file_path: str) -> str:
         return parse_txt(file_path)
     else:
         return parse_txt(file_path)
+
+def extract_experience_from_text(text: str) -> float:
+    """Estimates years of experience from resume text when parser returns 0."""
+    # 1. Look for explicit mentions: "over 6 years of experience", "5+ years", etc.
+    exp_matches = re.findall(
+        r'(?:over|more than|approx(?:imately)?|\+)?\s*(\d+(?:\.\d+)?)\s*\+?\s*years?(?:\s+of)?\s+(?:professional\s+)?experience',
+        text,
+        re.IGNORECASE
+    )
+    if exp_matches:
+        try:
+            val = float(exp_matches[0])
+            if 0.5 <= val <= 40:
+                return val
+        except ValueError:
+            pass
+
+    # 2. Extract year spans like '2018 - Present'
+    year_matches = re.findall(r'\b(20\d{2}|19\d{2})\b', text)
+    if year_matches:
+        years = [int(y) for y in year_matches if 1985 <= int(y) <= 2030]
+        has_present = bool(re.search(r'\b(present|current|now)\b', text, re.IGNORECASE))
+        current_year = 2025
+        if years:
+            min_year = min(years)
+            max_year = current_year if has_present else max(years)
+            diff = max_year - min_year
+            if 0 < diff <= 40:
+                return float(diff)
+    return 0.0
+
+def sanitize_summary(summary: str) -> str:
+    """Removes repetitive word loops and caps summary at 3 clean sentences."""
+    if not summary:
+        return "Screening batch completed successfully."
+    
+    sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', summary) if s.strip()]
+    valid_sentences = []
+    
+    loop_words = {'safely', 'securely', 'successfully', 'nicely', 'smoothly', 'properly', 'seamlessly', 'natively', 'cleanly', 'neatly', 'today', 'forever', 'daily', 'done', 'together'}
+    for s in sentences:
+        words = [w.lower().strip('.,!?:;') for w in s.split()]
+        if not words:
+            continue
+        loop_count = sum(1 for w in words if w in loop_words)
+        if loop_count > 3:
+            break
+        has_repeat = False
+        for i in range(len(words) - 1):
+            if words[i] == words[i+1] and len(words[i]) > 3:
+                has_repeat = True
+                break
+        if has_repeat:
+            break
+        valid_sentences.append(s)
+        if len(valid_sentences) >= 3:
+            break
+
+    if valid_sentences:
+        res = ' '.join(valid_sentences)
+    else:
+        res = summary[:250].rsplit(' ', 1)[0] + '.'
+        
+    return res
 
 # ==========================================
 # 📊 Part 2: Machine Learning Similarity Engine
@@ -519,9 +588,14 @@ class RankingAgent:
             prompt=prompt,
             schema=BatchRankingReport,
             preferred_model=self.model_name,
-            temperature=0.2,
+            temperature=0.4,
+            max_output_tokens=2500,
             log_callback=log_callback
         )
+        if "overall_summary" in ranking_report:
+            ranking_report["overall_summary"] = sanitize_summary(str(ranking_report["overall_summary"]))
+        else:
+            ranking_report["overall_summary"] = "Candidate pool successfully screened and ranked."
         # Ensure candidates list is populated; if empty or stored under an alternate key, resolve it
         if not ranking_report.get("candidates"):
             for alt_key in ["ranked_candidates", "candidates_ranked", "rankings", "candidate_rankings", "results"]:
@@ -586,6 +660,14 @@ def _process_candidate_unit(
             education=["Relevant Degree"],
             work_history=["Software Engineer"]
         )
+
+    # Automatically calculate experience if parser returned 0.0
+    if profile.experience_years <= 0.0:
+        calc_years = extract_experience_from_text(raw_text)
+        if calc_years > 0.0:
+            profile.experience_years = calc_years
+        elif profile.work_history:
+            profile.experience_years = max(1.0, float(len(profile.work_history) * 1.5))
 
     log_callback(f"Candidate [{index + 1}/{total}] ({profile.name}): Evaluating qualifications against JD...")
     try:

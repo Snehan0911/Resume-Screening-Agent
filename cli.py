@@ -40,13 +40,16 @@ def main():
     )
     parser.add_argument(
         "--model",
-        default="gemini-3.5-flash",
-        help="Gemini Core model to use (default: gemini-3.5-flash)."
+        default="gemini-3.5-flash-lite",
+        help="Gemini Core model to use (default: gemini-3.5-flash-lite)."
     )
 
     args = parser.parse_args()
 
-    # Load environment configuration
+    # Load environment configuration with absolute project path support
+    env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if os.path.exists(env_file):
+        load_dotenv(dotenv_path=env_file, override=True)
     load_dotenv(override=True)
     api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     if not api_key:

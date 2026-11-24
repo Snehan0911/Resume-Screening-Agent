@@ -10,11 +10,48 @@ import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 import google.generativeai as genai
 
-# Load environment variables dynamically at startup
-load_dotenv(override=True)
-api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
+# Setup robust project environment paths
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+ENV_FILE = os.path.join(PROJECT_DIR, ".env")
+
+def resolve_api_key(manual_key: str = "") -> str:
+    """
+    Robust API Key resolution order:
+    1. Direct user input in the sidebar UI (if provided)
+    2. Streamlit Cloud Secrets (st.secrets)
+    3. Explicit project-root .env file
+    4. System os.environ
+    """
+    if manual_key and manual_key.strip():
+        return manual_key.strip()
+
+    # 1. Check Streamlit Secrets (for Streamlit Community Cloud)
+    try:
+        if hasattr(st, "secrets") and st.secrets is not None:
+            key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
+            if key and str(key).strip():
+                return str(key).strip()
+    except Exception:
+        pass
+
+    # 2. Check explicit .env file in project directory
+    if os.path.exists(ENV_FILE):
+        load_dotenv(dotenv_path=ENV_FILE, override=True)
+    load_dotenv(override=True)
+
+    # 3. Check os.environ
+    key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if key and key.strip():
+        return key.strip()
+
+    return ""
+
+# Auto-configure genai at startup if key is available
+startup_key = resolve_api_key()
+if startup_key:
+    os.environ["GEMINI_API_KEY"] = startup_key
+    os.environ["GOOGLE_API_KEY"] = startup_key
+    genai.configure(api_key=startup_key)
 
 # Import parsing, ML, and agent pipeline
 from pipeline import run_screening_pipeline
@@ -93,22 +130,40 @@ if "logs" not in st.session_state:
 
 # Sidebar Configuration
 with st.sidebar:
-    st.image("assets/banner.png", use_container_width=True)
+    banner_path = os.path.join(PROJECT_DIR, "assets", "banner.png")
+    if os.path.exists(banner_path):
+        st.image(banner_path, use_container_width=True)
+    st.markdown("### 🔑 API Key Configuration")
+    detected_key = resolve_api_key()
+    api_key_input = st.text_input(
+        "Gemini API Key",
+        value=detected_key if detected_key else "",
+        type="password",
+        placeholder="Enter your Gemini API key (AIzaSy...)",
+        help="Loaded automatically from .env or Streamlit Secrets, or paste here directly."
+    )
+    if api_key_input.strip():
+        st.caption("✅ Key configured and active")
+    else:
+        st.caption("⚠️ Key missing. Enter key here, add to .env, or set in Streamlit Secrets.")
+
+    st.markdown("---")
     st.markdown("### ⚙️ Pipeline Settings")
     
     model_choice = st.selectbox(
         "Gemini Core Model",
-        options=["gemini-flash-latest", "gemini-3-flash-preview", "gemini-3.5-flash", "gemini-2.0-flash"],
+        options=["gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest"],
         index=0,
         help="Select the primary Gemini model for collaborative agents (automatic fallback cascade enabled)."
     )
     
     st.markdown("---")
-    st.markdown("### 🤖 Pipeline Agents")
-    st.markdown("1. 🔍 **Parser Agent**")
-    st.markdown("2. ⚖️ **Review Agent**")
-    st.markdown("3. 🛡️ **QA Agent**")
-    st.markdown("4. 👑 **Ranking Agent**")
+    st.markdown("### 🤖 Pipeline Agents (5 Stages)")
+    st.markdown("1. 📋 **JD Analyzer Agent**")
+    st.markdown("2. 🔍 **Resume Parser Agent**")
+    st.markdown("3. ⚖️ **Evaluator Agent**")
+    st.markdown("4. 🛡️ **QA Agent**")
+    st.markdown("5. 👑 **Ranking Agent**")
     
     st.markdown("---")
     st.markdown("### 📂 Testing Resumes")
@@ -155,7 +210,14 @@ Nice to have:
         if uploaded_files:
             st.markdown(f"**Selected files ({len(uploaded_files)}):**")
             for f in uploaded_files:
-                st.markdown(f"- {f.name} ({f.size / 1024:.0f} KB)")
+                # Safely calculate file size across all Streamlit versions
+                size_bytes = getattr(f, "size", None)
+                if size_bytes is None:
+                    try:
+                        size_bytes = len(f.getvalue())
+                    except Exception:
+                        size_bytes = 0
+                st.markdown(f"- 📄 **{f.name}** ({size_bytes / 1024:.1f} KB)")
                 
     st.markdown("---")
     
@@ -185,19 +247,30 @@ Nice to have:
             file_paths = []
             file_names = []
             for f in uploaded_files:
-                temp_path = os.path.join(temp_dir, f.name)
+                safe_name = os.path.basename(f.name)
+                temp_path = os.path.join(temp_dir, safe_name)
+                file_bytes = f.getvalue() if hasattr(f, "getvalue") else f.read()
                 with open(temp_path, "wb") as buffer:
-                    buffer.write(f.getbuffer())
+                    buffer.write(file_bytes)
                 file_paths.append(temp_path)
-                file_names.append(f.name)
+                file_names.append(safe_name)
                 
-            # Dynamically reload environment variables and configure genai on button click
-            load_dotenv(override=True)
-            api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-            if not api_key:
-                st.error("❌ **Error**: No `GEMINI_API_KEY` or `GOOGLE_API_KEY` found in environment/`.env` file. Please ensure you have created a `.env` file at the root directory of the project with a valid API key.")
+            # Dynamically resolve API key from UI input, secrets, or .env
+            active_api_key = resolve_api_key(api_key_input)
+            if not active_api_key:
+                st.error(
+                    "❌ **Error**: No `GEMINI_API_KEY` or `GOOGLE_API_KEY` found. Please provide an API key using any of these methods:\n\n"
+                    "1. **Directly in the Sidebar**: Enter your key in the **Gemini API Key** field on the left.\n"
+                    "2. **In `.env` File**: Ensure a `.env` file exists in the project root containing: `GEMINI_API_KEY=your_key_here`\n"
+                    "3. **In Streamlit Cloud Secrets**: If running on Streamlit Community Cloud, add `GEMINI_API_KEY` to **App Settings ➔ Secrets**."
+                )
                 shutil.rmtree(temp_dir)
                 st.stop()
+            
+            # Configure environment variables and Google GenAI SDK with active key
+            os.environ["GEMINI_API_KEY"] = active_api_key
+            os.environ["GOOGLE_API_KEY"] = active_api_key
+            genai.configure(api_key=active_api_key)
             
             try:
                 # Execute the centralized pipeline orchestrator
@@ -206,12 +279,13 @@ Nice to have:
                     file_paths=file_paths,
                     file_names=file_names,
                     model_name=model_choice,
-                    log_callback=log_to_console
+                    log_callback=log_to_console,
+                    progress_callback=progress_bar.progress
                 )
                 st.session_state.screening_results = results
                 progress_bar.progress(1.0)
                 shutil.rmtree(temp_dir)
-                time.sleep(1.0)
+                time.sleep(0.5)
                 st.rerun()
             except Exception as e:
                 st.error(f"❌ **Pipeline Execution Failed**: {str(e)}")

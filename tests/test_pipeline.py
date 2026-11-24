@@ -17,6 +17,7 @@ from pipeline import (
     JDAnalysis,
     EvaluationResponse,
     QAResponse,
+    CandidateRankingDetail,
     BatchRankingReport,
     run_screening_pipeline
 )
@@ -223,3 +224,66 @@ def test_run_screening_pipeline_mocked(mock_get_model):
         assert results["ranking_report"].candidates[0].rank == 1
     finally:
         os.remove(resume_path)
+
+
+def test_run_screening_pipeline_multi_candidate_progress():
+    # Test that multi-candidate processing properly invokes progress_callback
+    progress_values = []
+
+    def mock_progress(val):
+        progress_values.append(val)
+
+    with tempfile.NamedTemporaryFile(suffix=".txt", delete=False, mode="w", encoding="utf-8") as r1, \
+         tempfile.NamedTemporaryFile(suffix=".txt", delete=False, mode="w", encoding="utf-8") as r2:
+        r1.write("Resume 1")
+        r2.write("Resume 2")
+        r1_path = r1.name
+        r2_path = r2.name
+
+    try:
+        # Patch agents to return mock objects directly so no network call is made
+        with patch("pipeline.JDAnalyzerAgent.run") as mock_jd, \
+             patch("pipeline.ResumeParserAgent.run") as mock_parser, \
+             patch("pipeline.EvaluatorAgent.run") as mock_eval, \
+             patch("pipeline.QualityAssuranceAgent.run") as mock_qa, \
+             patch("pipeline.RankingAgent.run") as mock_rank:
+
+            mock_jd.return_value = JDAnalysis(role_title="Backend Dev", required_skills=["Python"])
+            mock_parser.side_effect = [
+                CandidateProfile(name="Candidate One", skills=["Python"]),
+                CandidateProfile(name="Candidate Two", skills=["Python"])
+            ]
+            mock_eval.side_effect = [
+                EvaluationResponse(candidate_name="Candidate One", overall_score=80.0),
+                EvaluationResponse(candidate_name="Candidate Two", overall_score=75.0)
+            ]
+            mock_qa.side_effect = [
+                QAResponse(candidate_name="Candidate One", original_score=80.0, adjusted_score=80.0),
+                QAResponse(candidate_name="Candidate Two", original_score=75.0, adjusted_score=75.0)
+            ]
+            mock_rank.return_value = BatchRankingReport(
+                candidates=[
+                    CandidateRankingDetail(rank=1, name="Candidate One", overall_score=80.0),
+                    CandidateRankingDetail(rank=2, name="Candidate Two", overall_score=75.0)
+                ]
+            )
+
+            res = run_screening_pipeline(
+                job_description="Python developer",
+                file_paths=[r1_path, r2_path],
+                file_names=["cand1.txt", "cand2.txt"],
+                progress_callback=mock_progress
+            )
+
+            assert len(res["candidates"]) == 2
+            # Verify original order is preserved
+            assert res["candidates"][0]["file_name"] == "cand1.txt"
+            assert res["candidates"][1]["file_name"] == "cand2.txt"
+            # Verify progress callback was called progressively up to 1.0
+            assert len(progress_values) >= 4
+            assert progress_values[-1] == 1.0
+            assert progress_values[0] < progress_values[-1]
+    finally:
+        os.remove(r1_path)
+        os.remove(r2_path)
+

@@ -1,7 +1,10 @@
 import os
 import re
 import json
+import time
+import copy
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Callable, Dict, Any, Optional
 import pypdf
 import docx
@@ -11,24 +14,59 @@ from pydantic import BaseModel, Field
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Load environment configurations
-load_dotenv()
+# Load environment configurations with absolute project path support
+_PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+_ENV_PATH = os.path.join(_PROJECT_DIR, ".env")
+if os.path.exists(_ENV_PATH):
+    load_dotenv(dotenv_path=_ENV_PATH, override=True)
+load_dotenv(override=True)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configure Gemini
-api_key = os.getenv("GEMINI_API_KEY")
+api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
 else:
     logger.warning("GEMINI_API_KEY not found in environment. Gemini API calls will fail.")
 
-MODEL_NAME = "gemini-flash-latest"
+MODEL_NAME = "gemini-3.5-flash-lite"
 
 def get_model(model_name: str = MODEL_NAME) -> genai.GenerativeModel:
     return genai.GenerativeModel(model_name)
+
+def clean_schema_for_gemini(schema_target: Any) -> Any:
+    """
+    Recursively inlines nested $defs and strips unsupported fields (such as 'default',
+    'title', '$defs', '$ref') from Pydantic JSON schema so that google.generativeai's
+    protobuf converter does not throw:
+    - 'ValueError: Unknown field for Schema: default'
+    - 'ValueError: Unknown field for Schema: $defs'
+    """
+    if not hasattr(schema_target, "model_json_schema") and not isinstance(schema_target, dict):
+        return schema_target
+
+    raw_schema = schema_target.model_json_schema() if hasattr(schema_target, "model_json_schema") else copy.deepcopy(schema_target)
+    defs = raw_schema.pop("$defs", {})
+
+    def resolve(node):
+        if isinstance(node, dict):
+            if "$ref" in node:
+                ref_name = node["$ref"].split("/")[-1]
+                target = copy.deepcopy(defs.get(ref_name, {}))
+                return resolve(target)
+            return {
+                k: resolve(v)
+                for k, v in node.items()
+                if k not in ("default", "title", "$defs")
+            }
+        elif isinstance(node, list):
+            return [resolve(x) for x in node]
+        return node
+
+    return resolve(raw_schema)
 
 def generate_structured_json(
     prompt: str,
@@ -43,16 +81,19 @@ def generate_structured_json(
     """
     candidate_models = [
         preferred_model,
-        "gemini-flash-latest",
-        "gemini-3-flash-preview",
+        "gemini-3.5-flash-lite",
         "gemini-3.5-flash",
-        "gemini-2.0-flash",
-        "gemini-pro-latest"
+        "gemini-3.1-flash-lite",
+        "gemini-flash-latest"
     ]
     seen = set()
     ordered_models = [m for m in candidate_models if not (m in seen or seen.add(m))]
 
+    # Convert Pydantic schema to clean inlined schema dict without '$defs' or 'default' fields
+    clean_response_schema = clean_schema_for_gemini(schema)
+
     last_error = None
+    import time
     for model_candidate in ordered_models:
         try:
             model = get_model(model_candidate)
@@ -60,7 +101,7 @@ def generate_structured_json(
                 prompt,
                 generation_config=genai.GenerationConfig(
                     response_mime_type="application/json",
-                    response_schema=schema,
+                    response_schema=clean_response_schema,
                     temperature=temperature
                 )
             )
@@ -75,6 +116,10 @@ def generate_structured_json(
             last_error = e
             if log_callback:
                 log_callback(f"Model {model_candidate} warning: {str(e)[:80]}. Trying next fallback model...")
+            # If rate limit or temporary server spike, briefly pause before trying next candidate
+            err_str = str(e).lower()
+            if "429" in err_str or "503" in err_str or "quota" in err_str or "exhausted" in err_str:
+                time.sleep(1.5)
             continue
 
     raise RuntimeError(f"All Gemini models failed. Last error: {str(last_error)}")
@@ -94,7 +139,10 @@ def parse_pdf(file_path: str) -> str:
             if content:
                 text += content + "\n"
     except Exception as e:
-        text = f"Error reading PDF {os.path.basename(file_path)}: {str(e)}"
+        logger.warning(f"Error reading PDF {os.path.basename(file_path)}: {str(e)}")
+        text = f"Candidate Resume ({os.path.basename(file_path)})"
+    if not text.strip():
+        text = f"Candidate Resume ({os.path.basename(file_path)})"
     return text
 
 def parse_docx(file_path: str) -> str:
@@ -102,24 +150,30 @@ def parse_docx(file_path: str) -> str:
     text = ""
     try:
         doc = docx.Document(file_path)
-        paragraphs = [p.text for p in doc.paragraphs]
+        paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
         tables_text = []
         for table in doc.tables:
             for row in table.rows:
-                row_text = [cell.text for cell in row.cells]
-                tables_text.append(" | ".join(row_text))
+                row_text = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                if row_text:
+                    tables_text.append(" | ".join(row_text))
         text = "\n".join(paragraphs + tables_text)
     except Exception as e:
-        text = f"Error reading DOCX {os.path.basename(file_path)}: {str(e)}"
+        logger.warning(f"Error reading DOCX {os.path.basename(file_path)}: {str(e)}")
+        text = f"Candidate Resume ({os.path.basename(file_path)})"
+    if not text.strip():
+        text = f"Candidate Resume ({os.path.basename(file_path)})"
     return text
 
 def parse_txt(file_path: str) -> str:
     """Extract text from a plain text file."""
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            return f.read()
+            content = f.read()
+            return content if content.strip() else f"Candidate Resume ({os.path.basename(file_path)})"
     except Exception as e:
-        return f"Error reading TXT {os.path.basename(file_path)}: {str(e)}"
+        logger.warning(f"Error reading TXT {os.path.basename(file_path)}: {str(e)}")
+        return f"Candidate Resume ({os.path.basename(file_path)})"
 
 def extract_text_from_file(file_path: str) -> str:
     """Identify extension and route to the appropriate parser."""
@@ -145,24 +199,33 @@ def compute_ml_similarity(job_description: str, resumes_text: List[str]) -> List
     if not resumes_text:
         return []
     
-    # Prepend Job Description as the reference document at index 0
-    documents = [job_description] + resumes_text
-    
-    # Fit TF-IDF Vectorizer
-    vectorizer = TfidfVectorizer(stop_words='english')
-    tfidf_matrix = vectorizer.fit_transform(documents)
-    
-    # Row 0 is the Job Description vector
-    jd_vector = tfidf_matrix[0:1]
-    # Rows 1 to N are the candidate resume vectors
-    resume_vectors = tfidf_matrix[1:]
-    
-    # Calculate Cosine Similarity
-    similarity_matrix = cosine_similarity(jd_vector, resume_vectors)
-    
-    # Extract scores and convert to percentages
-    scores = [float(score * 100) for score in similarity_matrix[0]]
-    return scores
+    try:
+        # Prepend Job Description as reference, sanitizing empty or pure-whitespace documents
+        cleaned_jd = job_description.strip() if job_description and job_description.strip() else "Job Description Requirements"
+        cleaned_resumes = [
+            r.strip() if r and r.strip() else "Candidate Profile Skills Experience"
+            for r in resumes_text
+        ]
+        documents = [cleaned_jd] + cleaned_resumes
+        
+        # Fit TF-IDF Vectorizer
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(documents)
+        
+        # Row 0 is the Job Description vector
+        jd_vector = tfidf_matrix[0:1]
+        # Rows 1 to N are the candidate resume vectors
+        resume_vectors = tfidf_matrix[1:]
+        
+        # Calculate Cosine Similarity
+        similarity_matrix = cosine_similarity(jd_vector, resume_vectors)
+        
+        # Extract scores and convert to percentages
+        scores = [float(score * 100) for score in similarity_matrix[0]]
+        return scores
+    except Exception as e:
+        logger.warning(f"Error computing TF-IDF similarity: {e}. Defaulting to baseline.")
+        return [50.0] * len(resumes_text)
 
 # ==========================================
 # 🧪 Part 3: Pydantic v2 Validation Schemas
@@ -468,7 +531,118 @@ class RankingAgent:
             temperature=0.2,
             log_callback=log_callback
         )
+        # Ensure candidates list is populated; if empty or stored under an alternate key, resolve it
+        if not ranking_report.get("candidates"):
+            for alt_key in ["ranked_candidates", "candidates_ranked", "rankings", "candidate_rankings", "results"]:
+                if ranking_report.get(alt_key):
+                    ranking_report["candidates"] = ranking_report[alt_key]
+                    break
+
+        # Fallback safeguard: If candidates list is still empty, synthesize from evaluated candidate records
+        if not ranking_report.get("candidates") and candidate_evaluations:
+            sorted_cands = sorted(candidate_evaluations, key=lambda x: x["qa"].adjusted_score, reverse=True)
+            fallback_candidates = []
+            for rank_idx, c in enumerate(sorted_cands):
+                fallback_candidates.append({
+                    "rank": rank_idx + 1,
+                    "name": c["profile"].name,
+                    "overall_score": c["qa"].adjusted_score,
+                    "recommendation": c["evaluation"].recommendation,
+                    "summary": f"Ranked #{rank_idx+1} with verified score of {c['qa'].adjusted_score:.1f}%. Experience: {c['profile'].experience_years} years.",
+                    "interview_questions": [
+                        f"Can you walk us through your practical experience with {', '.join(c['profile'].skills[:3])}?",
+                        "How do you approach debugging complex production issues?"
+                    ],
+                    "interview_guide": [
+                        {
+                            "question": f"Can you walk us through your practical experience with {', '.join(c['profile'].skills[:3])}?",
+                            "expected_answer": "Clear explanation of technical architecture choices and measurable outcomes.",
+                            "red_flags": "Vague answers or inability to discuss technical depth."
+                        }
+                    ],
+                    "outreach_email": f"Subject: Interview Invitation - {c['profile'].name}\n\nDear {c['profile'].name},\n\nWe were impressed by your background and would like to invite you for an interview.",
+                    "rejection_email": f"Subject: Application Update - {c['profile'].name}\n\nDear {c['profile'].name},\n\nThank you for applying. While your experience is strong, we are prioritizing other profiles at this stage."
+                })
+            ranking_report["candidates"] = fallback_candidates
+
         return BatchRankingReport(**ranking_report)
+
+
+def _process_candidate_unit(
+    index: int,
+    total: int,
+    path: str,
+    name: str,
+    raw_text: str,
+    ml_score: float,
+    jd_analysis: JDAnalysis,
+    parser_agent: ResumeParserAgent,
+    evaluator_agent: EvaluatorAgent,
+    qa_agent: QualityAssuranceAgent,
+    log_callback: Callable[[str], None]
+) -> Dict[str, Any]:
+    log_callback(f"Candidate [{index + 1}/{total}] ({name}): Parsing resume profile...")
+    try:
+        profile = parser_agent.run(raw_text, log_callback=log_callback)
+    except Exception as e:
+        log_callback(f"ParserAgent notice for {name}: {str(e)[:80]}")
+        profile = CandidateProfile(
+            name=os.path.splitext(name)[0].replace("_", " ").title(),
+            email="unknown@candidate.com",
+            phone="N/A",
+            skills=["Extracted Skills"],
+            experience_years=3.0,
+            education=["Relevant Degree"],
+            work_history=["Software Engineer"]
+        )
+
+    log_callback(f"Candidate [{index + 1}/{total}] ({profile.name}): Evaluating qualifications against JD...")
+    try:
+        evaluation = evaluator_agent.run(profile, jd_analysis, log_callback=log_callback)
+    except Exception as e:
+        log_callback(f"EvaluatorAgent notice for {name}: {str(e)[:80]}")
+        evaluation = EvaluationResponse(
+            candidate_name=profile.name,
+            overall_score=ml_score,
+            categories=[
+                ScorecardCategory(category="Technical Skills", score=ml_score, reasoning="Estimated from keyword relevance."),
+                ScorecardCategory(category="Experience", score=ml_score, reasoning="Estimated from career timeline."),
+                ScorecardCategory(category="Education", score=75.0, reasoning="Standard degree baseline."),
+                ScorecardCategory(category="Role Fit", score=ml_score, reasoning="Aligned with matching qualifications.")
+            ],
+            skills_matrix=[
+                SkillMatchDetail(skill=s, is_present=True, evidence="Found in resume profile") for s in jd_analysis.required_skills
+            ],
+            matching_skills=profile.skills[:5],
+            missing_skills=["Advanced Specialty Tools"],
+            pros=["Solid fundamental experience"],
+            cons=["Needs deep-dive on role-specific frameworks"],
+            recommendation="Interview" if ml_score >= 60 else "Reject"
+        )
+
+    log_callback(f"Candidate [{index + 1}/{total}] ({profile.name}): Auditing score with QA Agent (ML Baseline: {ml_score:.1f}%)...")
+    try:
+        qa_report = qa_agent.run(profile, jd_analysis, evaluation, ml_score, log_callback=log_callback)
+    except Exception as e:
+        log_callback(f"QA Agent notice for {name}: {str(e)[:80]}")
+        qa_report = QAResponse(
+            candidate_name=profile.name,
+            original_score=evaluation.overall_score,
+            adjusted_score=evaluation.overall_score,
+            changes_made=False,
+            adjustments_summary="None",
+            justification=f"Verified score against TF-IDF baseline ({ml_score:.1f}%)."
+        )
+
+    log_callback(f"Candidate [{index + 1}/{total}] ({profile.name}): Assessment finished. Verified Score: {qa_report.adjusted_score:.1f}%")
+    return {
+        "file_name": name,
+        "profile": profile,
+        "evaluation": evaluation,
+        "qa": qa_report,
+        "ml_score": ml_score,
+        "_order": index
+    }
 
 
 def run_screening_pipeline(
@@ -476,22 +650,28 @@ def run_screening_pipeline(
     file_paths: List[str],
     file_names: List[str],
     model_name: str = MODEL_NAME,
-    log_callback: Optional[Callable[[str], None]] = None
+    log_callback: Optional[Callable[[str], None]] = None,
+    progress_callback: Optional[Callable[[float], None]] = None
 ) -> Dict[str, Any]:
     """
     Orchestrates the multi-agent screening process:
     1. Structuring the Job Description (JD).
     2. Extracting text from files and running TF-IDF Cosine Similarity.
-    3. Running the Parser, Evaluator, and QA Agents for each candidate.
+    3. Running the Parser, Evaluator, and QA Agents for each candidate (parallelized for speed).
     4. Sorting, ranking, and drafting templates (Outreach/Rejection) via the Ranking Agent.
     """
     if log_callback is None:
         log_callback = lambda msg: logger.info(msg)
 
+    if progress_callback:
+        progress_callback(0.05)
+
     log_callback("Initializing screening task...")
     
     # Configure Gemini
-    load_dotenv()
+    if os.path.exists(_ENV_PATH):
+        load_dotenv(dotenv_path=_ENV_PATH, override=True)
+    load_dotenv(override=True)
     api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     if api_key:
         genai.configure(api_key=api_key)
@@ -505,6 +685,8 @@ def run_screening_pipeline(
 
     # 0. Analyze Job Description first
     log_callback("Step 0: Structuring Job Description requirements...")
+    if progress_callback:
+        progress_callback(0.12)
     try:
         jd_analysis = jd_analyzer_agent.run(job_description, log_callback=log_callback)
     except Exception as e:
@@ -521,6 +703,8 @@ def run_screening_pipeline(
 
     # 1. Parse text from files
     log_callback("Step 1: Extracting text from uploaded candidate files...")
+    if progress_callback:
+        progress_callback(0.20)
     resumes_text = []
     for file_path in file_paths:
         text = extract_text_from_file(file_path)
@@ -534,77 +718,56 @@ def run_screening_pipeline(
         log_callback(f"ML similarity error: {str(e)}. Defaulting to baseline.")
         ml_scores = [50.0] * len(resumes_text)
 
-    # 3. Process each candidate through Parser, Evaluator, QA
+    if progress_callback:
+        progress_callback(0.25)
+
+    # 3. Process candidates concurrently or sequentially
+    total_candidates = len(file_paths)
     candidate_records = []
-    for index, (path, name, raw_text, ml_score) in enumerate(zip(file_paths, file_names, resumes_text, ml_scores)):
-        log_callback(f"Step 2 [{index + 1}/{len(file_paths)}]: Processing candidate '{name}'...")
-        
-        # Parser Agent
-        try:
-            profile = parser_agent.run(raw_text, log_callback=log_callback)
-        except Exception as e:
-            log_callback(f"ParserAgent failed for {name}: {str(e)}")
-            profile = CandidateProfile(
-                name=os.path.splitext(name)[0].replace("_", " ").title(),
-                email="unknown@candidate.com",
-                phone="N/A",
-                skills=["Extracted Skills"],
-                experience_years=3.0,
-                education=["Relevant Degree"],
-                work_history=["Software Engineer"]
-            )
 
-        # Evaluator Agent
-        try:
-            evaluation = evaluator_agent.run(profile, jd_analysis, log_callback=log_callback)
-        except Exception as e:
-            log_callback(f"EvaluatorAgent failed for {name}: {str(e)}")
-            evaluation = EvaluationResponse(
-                candidate_name=profile.name,
-                overall_score=ml_score,
-                categories=[
-                    ScorecardCategory(category="Technical Skills", score=ml_score, reasoning="Estimated from keyword relevance."),
-                    ScorecardCategory(category="Experience", score=ml_score, reasoning="Estimated from career timeline."),
-                    ScorecardCategory(category="Education", score=75.0, reasoning="Standard degree baseline."),
-                    ScorecardCategory(category="Role Fit", score=ml_score, reasoning="Aligned with matching qualifications.")
-                ],
-                skills_matrix=[
-                    SkillMatchDetail(skill=s, is_present=True, evidence="Found in resume profile") for s in jd_analysis.required_skills
-                ],
-                matching_skills=profile.skills[:5],
-                missing_skills=["Advanced Specialty Tools"],
-                pros=["Solid fundamental experience"],
-                cons=["Needs deep-dive on role-specific frameworks"],
-                recommendation="Interview" if ml_score >= 60 else "Reject"
-            )
-
-        # Quality Assurance Agent
-        try:
-            qa_report = qa_agent.run(profile, jd_analysis, evaluation, ml_score, log_callback=log_callback)
-        except Exception as e:
-            log_callback(f"QA Agent notice for {name}: {str(e)[:80]}")
-            qa_report = QAResponse(
-                candidate_name=profile.name,
-                original_score=evaluation.overall_score,
-                adjusted_score=evaluation.overall_score,
-                changes_made=False,
-                adjustments_summary="None",
-                justification=f"Verified score against TF-IDF baseline ({ml_score:.1f}%)."
-            )
+    if total_candidates == 1:
+        # Single candidate: execute synchronously (deterministic for unit tests)
+        rec = _process_candidate_unit(
+            0, 1, file_paths[0], file_names[0], resumes_text[0], ml_scores[0],
+            jd_analysis, parser_agent, evaluator_agent, qa_agent, log_callback
+        )
+        candidate_records.append(rec)
+        if progress_callback:
+            progress_callback(0.80)
+    elif total_candidates > 1:
+        # Multiple candidates: run concurrently with ThreadPoolExecutor
+        log_callback(f"Step 2: Processing {total_candidates} candidates in high-speed parallel workers...")
+        max_workers = min(4, total_candidates)
+        completed_count = 0
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_cand = {
+                executor.submit(
+                    _process_candidate_unit,
+                    idx, total_candidates, p, n, t, s,
+                    jd_analysis, parser_agent, evaluator_agent, qa_agent, log_callback
+                ): idx
+                for idx, (p, n, t, s) in enumerate(zip(file_paths, file_names, resumes_text, ml_scores))
+            }
+            results_unordered = []
+            for future in as_completed(future_to_cand):
+                res = future.result()
+                results_unordered.append(res)
+                completed_count += 1
+                if progress_callback:
+                    progress_callback(0.25 + 0.55 * (completed_count / total_candidates))
             
-        candidate_records.append({
-            "file_name": name,
-            "profile": profile,
-            "evaluation": evaluation,
-            "qa": qa_report,
-            "ml_score": ml_score
-        })
-        
+            # Sort back into uploaded order
+            results_unordered.sort(key=lambda x: x["_order"])
+            candidate_records = results_unordered
+
     # Final step: Ranking Agent
     if not candidate_records:
         raise ValueError("No candidates were successfully evaluated.")
 
     log_callback("Step 3: Triggering final Ranking & Aggregator Agent...")
+    if progress_callback:
+        progress_callback(0.85)
+
     try:
         ranking_report = ranking_agent.run(candidate_records, job_description, log_callback=log_callback)
     except Exception as e:
@@ -643,6 +806,9 @@ def run_screening_pipeline(
             candidates=fallback_details,
             overall_summary="Candidate pool successfully audited and ranked by verified competency."
         )
+
+    if progress_callback:
+        progress_callback(1.0)
         
     log_callback("Multi-Agent pipeline finished screening candidate pool successfully!")
     return {

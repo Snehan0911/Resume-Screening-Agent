@@ -1,6 +1,7 @@
 # 🚀 Resume Screening Agent: Collaborative Multi-Agent AI System
 
 [![CI/CD Pipeline](https://github.com/Snehan0911/Resume-Screening-Agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Snehan0911/Resume-Screening-Agent/actions/workflows/ci.yml)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://resume-screening-agent-kjzscaefcqf2sf5dxj6gha.streamlit.app/)
 
 ![Resume Screening Agent Cover Banner](./assets/banner.png)
 Resume Screening Agent website :- "https://resume-screening-agent-kjzscaefcqf2sf5dxj6gha.streamlit.app/"
@@ -12,9 +13,10 @@ Welcome to **Resume Screening Agent** - a state-of-the-art collaborative Multi-A
 This platform represents **honest engineering** designed to solve a critical HR challenge: screening candidates at scale while preventing AI score inflation, hallucinations, and parsing errors through cooperative, multi-step verification.
 
 *   **Platform Version**: v2.0.0 (Pure Python Stack)
-*   **Target Core AI**: Gemini 3.5 Flash Model (`gemini-3.5-flash`)
+*   **Target Core AI**: Gemini 3.5 Flash Model (`gemini-3.5-flash` / `gemini-flash-latest`)
 *   **Machine Learning Engine**: TF-IDF + Cosine Similarity (Scikit-Learn)
 *   **Visual Interface**: Streamlit Dashboard Web Interface
+*   **Live Web App**: [https://resume-screening-agent-kjzscaefcqf2sf5dxj6gha.streamlit.app/](https://resume-screening-agent-kjzscaefcqf2sf5dxj6gha.streamlit.app/)
 
 ---
 
@@ -44,7 +46,9 @@ Get the entire project running in **3 simple steps** :
         ```bash
         streamlit run app.py
         ```
-        Open your browser to: **`"[http://localhost:8501](https://resume-screening-agent-kjzscaefcqf2sf5dxj6gha.streamlit.app/)"`**.
+        Open your local browser to: **`http://localhost:8501`**.
+        
+        *(Or access the public cloud deployment: [resume-screening-agent.streamlit.app](https://resume-screening-agent-kjzscaefcqf2sf5dxj6gha.streamlit.app/))*.
     *   **Option B: Run from Command Line (CLI)**:
         Run the screening process on a folder of resumes directly from the terminal:
         ```bash
@@ -88,7 +92,14 @@ Our agentic pipeline is built as a custom, lightweight workflow using Python, Sc
                                       │
                                       ▼
                   ┌────────────────────────────────────────┐
-                  │    📄 Resume Text Parsers (PDF/Word)   │
+                  │      📋 Agent 1: JD Analyzer           │
+                  │  Extracts role, skills, exp, education │
+                  └───────────────────┬────────────────────┘
+                                      │
+                                      ▼
+                  ┌────────────────────────────────────────┐
+                  │    📄 Resume Text Parsers (PDF/DOCX)   │
+                  │  Extracts raw text from multiple files │
                   └───────────────────┬────────────────────┘
                                       │
                                       ▼
@@ -99,31 +110,32 @@ Our agentic pipeline is built as a custom, lightweight workflow using Python, Sc
                                       │
                                       ▼
                   ┌────────────────────────────────────────┐
-                  │        🔍 Resume Parser Agent          │
+                  │      🔍 Agent 2: Resume Parser         │
                   │   Extracts structured candidate data   │
                   └───────────────────┬────────────────────┘
                                       │
                                       ▼
                   ┌────────────────────────────────────────┐
-                  │      ⚖️ Candidate Review Agent         │
-                  │ Matches skills & grades match (0-100)  │
+                  │       ⚖️ Agent 3: Evaluator            │
+                  │ Scores technical, exp, edu & role fit  │
                   └───────────────────┬────────────────────┘
                                       │
                                       ▼
                   ┌────────────────────────────────────────┐
-                  │      🛡️ Quality Assurance Agent        │
-                  │ Audits scores & experience timelines   │
+                  │    🛡️ Agent 4: Quality Assurance       │
+                  │ Audits scores & catches hallucinations │
                   └───────────────────┬────────────────────┘
                                       │
                                       ▼
                   ┌────────────────────────────────────────┐
-                  │       👑 Ranking & Aggregator Agent    │
-                  │ Ranks shortlist & drafts custom Qs     │
+                  │   👑 Agent 5: Ranking & Aggregator     │
+                  │ Ranks shortlist, Qs & email drafts     │
                   └───────────────────┬────────────────────┘
                                       │
                                       ▼
                   ┌────────────────────────────────────────┐
                   │     💻 Streamlit Web UI Dashboard      │
+                  │ Candidate scores, rankings, QA & guides│
                   └────────────────────────────────────────┘
 ```
 
@@ -132,11 +144,37 @@ We implement a mathematical keyword/conceptual overlap check using **Scikit-Lear
 *   **TF-IDF (Term Frequency-Inverse Document Frequency)**: Vectorizes the Job Description and all candidate resumes, converting raw English text into mathematical vectors representing word importance.
 *   **Cosine Similarity**: Measures the cosine of the angle between the Job Description vector and each candidate resume vector. This computes a baseline percentage overlap score (0-100%) indicating how close the resume vocabulary is to the requirements.
 
-### 🤖 The 4 Collaborative Agents
-1.  **🔍 Resume Parser Agent**: Extracts standard fields (Name, Contact, Skills, Experience Years, Education, Work History) from raw document text into structured JSON.
-2.  **⚖️ Review Agent**: Scores candidates from 0 to 100 across 4 dimensions: Technical Skills, Experience, Education, and Role-specific Fit.
-3.  **🛡️ Quality Assurance Agent**: Cross-checks the evaluator's output against the parsed profile and the TF-IDF Cosine Similarity score to correct score inflation and catch hallucinations.
-4.  **👑 Ranking & Aggregator Agent**: Orders the candidates by score, writes a global batch review summary, and designs 3-4 custom technical and behavioral interview questions tailored to probe each candidate's gaps.
+### 🤖 The 5 Collaborative AI Agents Pipeline
+
+Our backend architecture (`pipeline.py`) features **five specialized agent classes** working cooperatively:
+
+1. 📋 **Agent 1 – JD Analyzer (`JDAnalyzerAgent`)**: 
+   * **Role**: Parses raw, unstructured Job Description text into a typed Pydantic schema (`JDAnalysis`).
+   * **Key Outputs**: Target role title, required mandatory skills, preferred/bonus skills, minimum experience threshold (years), required education degree, and primary responsibilities.
+   * **Why it matters**: Upstream structuring prevents ambiguity and anchors all subsequent agent evaluations against standardized criteria.
+
+2. 🔍 **Agent 2 – Resume Parser (`ResumeParserAgent`)**: 
+   * **Role**: Ingests raw resume text (from PDF, Word, or TXT) and transforms it into a clean, typed profile (`CandidateProfile`).
+   * **Key Outputs**: Candidate full name, email, phone, extracted technical & soft skills, calculated total years of experience, educational degrees/institutions, and chronological work history.
+   * **Why it matters**: Eliminates parsing errors and standardizes candidate data for fair downstream evaluation.
+
+3. ⚖️ **Agent 3 – Evaluator (`EvaluatorAgent`)**: 
+   * **Role**: Conducts a multi-dimensional comparison between the candidate profile and the structured JD analysis.
+   * **Key Outputs**: Generates a 4-pillar scorecard (Technical Skills, Experience, Education, Role Fit) from 0 to 100, produces an exhaustive `skills_matrix` comparing every required/preferred JD skill with verifiable resume evidence, identifies matching & missing skills, lists pros and cons, and assigns an initial recommendation (`Shortlist`, `Interview`, or `Reject`).
+   * **Why it matters**: Provides explainable, category-level scoring rather than a black-box guess.
+
+4. 🛡️ **Agent 4 – Quality Assurance (`QualityAssuranceAgent`)**: 
+   * **Role**: Functions as an autonomous fact-checker and auditor on the Evaluator Agent's output.
+   * **Key Outputs**: Cross-references the evaluation draft with the raw work history timeline and the Scikit-Learn **TF-IDF Cosine Similarity** baseline (0-100%). It detects score inflation, penalizes missing experience thresholds, catches hallucinated skills (skills claimed by the evaluator that are absent in the resume), and writes an adjusted score with a clear justification.
+   * **Why it matters**: Guarantees consistency, honesty, and safeguards against LLM hallucinations.
+
+5. 👑 **Agent 5 – Ranking & Aggregator (`RankingAgent`)**: 
+   * **Role**: Evaluates the entire audited candidate pool globally to rank candidates and assemble the final recruiter deliverables.
+   * **Key Outputs**: Ranks candidates from best to worst based on verified QA scores, writes an executive pool summary, designs 3-4 custom tailored interview questions per candidate probing their specific gaps (including expected answer benchmarks and red-flag warnings), and drafts personalized outreach and rejection email templates.
+   * **Why it matters**: Delivers an end-to-end recruitment package ready for hiring managers and recruiters.
+
+> 💡 **Important Architecture & Interview Note**:
+> While high-level summaries sometimes refer to **four collaborative agents** (grouping the candidate-centric evaluation stages: Parser, Evaluator, QA, and Ranking), `pipeline.py` actually contains **five distinct agent classes**, with the **JD Analyzer Agent** as the critical first stage. In interviews and technical reviews, always explain all **five stages** in sequence.
 
 ---
 
@@ -322,23 +360,25 @@ Here is the directory layout of your clean Python workspace:
 ---
 
 ### ⚙️ 2. [pipeline.py](file:///d:/Projects/Resume%20Screening%20Agent/pipeline.py)
-*   **Lines 1-12 📥**: Imports necessary libraries (`os`, `json`, `logging` for runtime tracking, `google.generativeai`, `pydantic`, `TfidfVectorizer`, `cosine_similarity`).
-*   **Lines 14-28 🔑**: Triggers `load_dotenv()` to read the API key and configures the Gemini generative model.
-*   **Line 30 (`MODEL_NAME = "gemini-3.5-flash"`) 🧠**: Sets the default Gemini model version.
-*   **Lines 32-34 (`get_model`) 🧠**: Instantiates the GenerativeModel class.
-*   **Lines 40-52 (`parse_pdf`) 📄**: Extracts text from PDF using PyPDF by iterating through page contents and concatenating them.
-*   **Lines 54-68 (`parse_docx`) 📝**: Extracts text paragraphs and loops through Word tables, merging columns with pipe `|` characters to preserve data associations.
-*   **Lines 70-76 (`parse_txt`) 💬**: Opens files with UTF-8 encoding and ignores unicode decoding exceptions.
-*   **Lines 78-90 (`extract_text_from_file`) 🔌**: The central parser router based on file extension.
-*   **Lines 96-121 (`compute_ml_similarity`) 📊**:
-    *   Prepend Job Description at index 0 and candidate resumes from index 1.
-    *   Applies `TfidfVectorizer` (with English stop-words filtering) to calculate terms frequency matrices.
-    *   Calls `cosine_similarity(jd_vector, resume_vectors)` to compute mathematical overlap percentages.
-*   **Lines 127-179 (Validation Schemas) 🛡️**: Defines Pydantic validation schemas (`CandidateProfile`, `ScorecardCategory`, `EvaluationResponse`, `QAResponse`, `CandidateRankingDetail`, `BatchRankingReport`).
-*   **Lines 185-224 (`ResumeParserAgent`) 🔍**: System prompt instructs Gemini to parse raw text into a structured JSON payload conforming to the `CandidateProfile` schema.
-*   **Lines 227-280 (`EvaluatorAgent`) ⚖️**: Grades candidates from 0 to 100 on technical skills, experience, education, and role fit. Returns the `EvaluationResponse`.
-*   **Lines 283-345 (`QualityAssuranceAgent`) 🛡️**: Acts as an auditor. Takes the evaluator's output and cross-references it with the ML Cosine Similarity score and the parsed work history timeline to make adjustments. Returns `QAResponse`.
-*   **Lines 348-422 (`RankingAgent`) 👑**: Sorts candidates, drafts custom interview questions to probe profile gaps, and generates `BatchRankingReport` JSON.
+*   **Lines 1-27 📥**: Imports necessary libraries (`os`, `json`, `logging` for runtime tracking, `pypdf`, `docx`, `google.generativeai`, `pydantic`, `TfidfVectorizer`, `cosine_similarity`) and reads environment configurations.
+*   **Lines 28-81 🧠**: Defines default `MODEL_NAME` and `generate_structured_json` with multi-model fallback cascading (handling quota limits and model deprecations).
+*   **Lines 83-135 📄 (Part 1: Document Parsers)**:
+    *   `parse_pdf`: Extracts text using `pypdf.PdfReader` across all document pages.
+    *   `parse_docx`: Extracts paragraphs and loops through Word tables, merging cells with pipe `|` delimiters.
+    *   `parse_txt`: Reads text with UTF-8 encoding handling decoding exceptions safely.
+    *   `extract_text_from_file`: Central parser router dynamically selecting the reader by file extension.
+*   **Lines 137-166 📊 (Part 2: ML Similarity Engine)**:
+    *   `compute_ml_similarity`: Prepends Job Description at index 0 and candidate resumes from index 1.
+    *   Applies `TfidfVectorizer` (with English stop-words filtering) to calculate term frequency matrices.
+    *   Calculates `cosine_similarity(jd_vector, resume_vectors)` to compute baseline mathematical overlap percentages (0-100%).
+*   **Lines 168-249 🛡️ (Part 3: Pydantic v2 Validation Schemas)**: Defines strictly-typed schemas: `CandidateProfile`, `JDAnalysis`, `ScorecardCategory`, `SkillMatchDetail`, `EvaluationResponse`, `QAResponse`, `InterviewQuestionDetail`, `CandidateRankingDetail`, and `BatchRankingReport`.
+*   **Lines 250-472 🤖 (Part 4: The 5 Collaborative AI Agents)**:
+    *   **Lines 253-281 (`JDAnalyzerAgent` - Agent 1) 📋**: Structures raw Job Description text into typed `JDAnalysis` (role title, required skills, preferred skills, min experience, education, key responsibilities).
+    *   **Lines 283-313 (`ResumeParserAgent` - Agent 2) 🔍**: Ingests raw candidate resume text and extracts structured `CandidateProfile` (contact, skills, experience years, education, work history).
+    *   **Lines 315-362 (`EvaluatorAgent` - Agent 3) ⚖️**: Grades candidates across 4 categories (Technical Skills, Experience, Education, Role Fit), builds an itemized `skills_matrix`, and returns `EvaluationResponse`.
+    *   **Lines 364-408 (`QualityAssuranceAgent` - Agent 4) 🛡️**: Audits evaluations against candidate career timelines and the TF-IDF Cosine Similarity score to prevent score inflation and eliminate hallucinations. Returns `QAResponse`.
+    *   **Lines 410-472 (`RankingAgent` - Agent 5) 👑**: Ranks the pool, writes an executive batch summary, generates 3-4 custom tailored interview questions with expected answers and red flags, and drafts personalized outreach and rejection email templates.
+*   **Lines 474-652 🚀 (`run_screening_pipeline`)**: Master orchestrator chaining JD analysis, file parsing, TF-IDF calculations, candidate-level evaluation & QA loops, and final ranking.
 
 ---
 

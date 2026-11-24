@@ -574,7 +574,7 @@ class RankingAgent:
         2. In 'summary', write a SINGLE concise sentence summarizing the candidate's core fit.
         3. In 'interview_guide', provide exactly 2 high-impact interview questions per candidate. For each, give a concise question, 1-sentence expected answer, and 1-sentence red flag. Populate 'interview_questions' with the 2 question strings.
         4. In 'outreach_email', write a short, professional 3-sentence interview invite. In 'rejection_email', write a polite 3-sentence constructive rejection.
-        5. In 'overall_summary', write a CONCISE, 2-3 sentence executive batch summary highlighting the pool's top strengths and hiring recommendation. Do NOT write long rambling paragraphs.
+        5. Set 'overall_summary' to "" (empty string).
 
         Candidates List:
         {json.dumps(candidates_summary, indent=2)}
@@ -589,13 +589,10 @@ class RankingAgent:
             schema=BatchRankingReport,
             preferred_model=self.model_name,
             temperature=0.4,
-            max_output_tokens=2500,
+            max_output_tokens=2048,
             log_callback=log_callback
         )
-        if "overall_summary" in ranking_report:
-            ranking_report["overall_summary"] = sanitize_summary(str(ranking_report["overall_summary"]))
-        else:
-            ranking_report["overall_summary"] = "Candidate pool successfully screened and ranked."
+        ranking_report["overall_summary"] = ""
         # Ensure candidates list is populated; if empty or stored under an alternate key, resolve it
         if not ranking_report.get("candidates"):
             for alt_key in ["ranked_candidates", "candidates_ranked", "rankings", "candidate_rankings", "results"]:

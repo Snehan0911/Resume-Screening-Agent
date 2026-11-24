@@ -744,15 +744,20 @@ def run_screening_pipeline(
                 executor.submit(
                     _process_candidate_unit,
                     idx, total_candidates, p, n, t, s,
-                    jd_analysis, parser_agent, evaluator_agent, qa_agent, log_callback
-                ): idx
+                    jd_analysis, parser_agent, evaluator_agent, qa_agent,
+                    lambda msg: logger.info(f"[Worker] {msg}")
+                ): (idx, n)
                 for idx, (p, n, t, s) in enumerate(zip(file_paths, file_names, resumes_text, ml_scores))
             }
             results_unordered = []
             for future in as_completed(future_to_cand):
+                idx, cand_name = future_to_cand[future]
                 res = future.result()
                 results_unordered.append(res)
                 completed_count += 1
+                cand_display_name = res["profile"].name if res.get("profile") else cand_name
+                qa_score = res["qa"].adjusted_score if res.get("qa") else res.get("ml_score", 0.0)
+                log_callback(f"Candidate [{completed_count}/{total_candidates}]: Evaluated '{cand_display_name}' (Verified Score: {qa_score:.1f}%)")
                 if progress_callback:
                     progress_callback(0.25 + 0.55 * (completed_count / total_candidates))
             

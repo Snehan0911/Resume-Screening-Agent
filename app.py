@@ -230,15 +230,24 @@ Nice to have:
             st.error("Please provide a Job Description.")
         else:
             st.session_state.logs = []
+            local_logs = []
             
             st.markdown("### 📟 Real-Time Agent Workflow Console")
             progress_bar = st.progress(0.0)
             console_view = st.empty()
             
             def log_to_console(message: str):
-                st.session_state.logs.append(message)
-                log_content = "\n".join([f"[{time.strftime('%H:%M:%S')}] {line}" for line in st.session_state.logs])
-                console_view.code(log_content, language="bash")
+                local_logs.append(message)
+                try:
+                    if hasattr(st, "session_state") and "logs" in st.session_state:
+                        st.session_state.logs.append(message)
+                except Exception:
+                    pass
+                try:
+                    log_content = "\n".join([f"[{time.strftime('%H:%M:%S')}] {line}" for line in local_logs])
+                    console_view.code(log_content, language="bash")
+                except Exception:
+                    pass
 
             log_to_console("Initializing screening task...")
             

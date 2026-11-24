@@ -430,8 +430,20 @@ Role Title: {role_name}
     m_col2.metric("Average Score", f"{avg_score:.1f}%")
     m_col3.metric("Top Recommended Candidate", top_cand)
     
-    # Global pool review summary box
-    st.info(f"💡 **Batch Summary Findings**: {report['overall_summary']}")
+    # Global pool review summary box - concise executive card
+    summary_text = report.get('overall_summary', 'Candidates successfully evaluated and ranked.')
+    summary_paragraphs = [p.strip() for p in summary_text.split('\n') if p.strip()]
+    cleaned_summary = " ".join(summary_paragraphs[:2]) if len(summary_paragraphs) > 2 else summary_text
+
+    st.markdown(
+        f"""
+        <div style="background: rgba(30, 41, 59, 0.75); border-left: 4px solid #8b5cf6; padding: 0.85rem 1.25rem; border-radius: 10px; margin-bottom: 1.25rem; border: 1px solid rgba(255,255,255,0.06);">
+            <div style="font-weight: 700; color: #c084fc; margin-bottom: 0.25rem; font-size: 0.95rem;">💡 Executive Batch Summary</div>
+            <div style="color: #e2e8f0; font-size: 0.92rem; line-height: 1.5;">{cleaned_summary}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     
     # Skill Gap Matrix expander
     jd_analysis = results.get("jd_analysis")

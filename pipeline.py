@@ -298,16 +298,16 @@ class CandidateRankingDetail(SubscriptableModel):
     name: str = Field(default="Candidate", description="Candidate name")
     overall_score: float = Field(default=75.0, description="Verified overall score")
     recommendation: str = Field(default="Interview", description="Final recommendation")
-    summary: str = Field(default="Evaluated against role requirements.", description="Brief summary of the candidate's fit")
-    interview_questions: List[str] = Field(default_factory=list, description="Legacy flat list of interview questions")
-    interview_guide: List[InterviewQuestionDetail] = Field(default_factory=list, description="3-4 tailored interview questions with expected answers and red flags")
-    outreach_email: str = Field(default="Dear Candidate,\n\nWe would like to invite you for an interview.", description="Personalized outreach email invite to interview")
-    rejection_email: str = Field(default="Dear Candidate,\n\nThank you for your application.", description="Personalized constructive rejection email template")
+    summary: str = Field(default="Evaluated against role requirements.", description="1 concise sentence on candidate fit")
+    interview_questions: List[str] = Field(default_factory=list, description="List of 2 tailored interview questions")
+    interview_guide: List[InterviewQuestionDetail] = Field(default_factory=list, description="2 high-impact tailored interview questions with expected answers and red flags")
+    outreach_email: str = Field(default="Dear Candidate,\n\nWe would like to invite you for an interview.", description="Short professional outreach email")
+    rejection_email: str = Field(default="Dear Candidate,\n\nThank you for your application.", description="Short polite constructive rejection email")
 
 class BatchRankingReport(SubscriptableModel):
     job_description: str = Field(default="", description="The job description used for screening")
     candidates: List[CandidateRankingDetail] = Field(default_factory=list, description="List of candidates sorted by rank")
-    overall_summary: str = Field(default="Screening batch completed successfully.", description="Overview of the batch")
+    overall_summary: str = Field(default="Screening batch completed successfully.", description="Concise 2-3 sentence executive batch summary")
 
 # ==========================================
 # 🤖 Part 4: Collaborative AI Agent Pipeline
@@ -349,6 +349,7 @@ class ResumeParserAgent:
 
     def run(self, raw_text: str, log_callback: Callable[[str], None]) -> CandidateProfile:
         log_callback("ResumeParserAgent: Parsing raw resume text into structured fields...")
+        cleaned_text = raw_text[:6000] if len(raw_text) > 6000 else raw_text
         prompt = f"""
         You are an expert Resume Parser Agent. Your job is to extract candidate details from the raw resume text provided below.
         Be accurate and extract details exactly as they appear in the resume:
@@ -362,7 +363,7 @@ class ResumeParserAgent:
 
         Raw Resume Text:
         ---
-        {raw_text}
+        {cleaned_text}
         ---
         """
         parsed_data = generate_structured_json(
@@ -477,7 +478,7 @@ class RankingAgent:
     def run(self, candidate_evaluations: List[Dict[str, Any]], job_description: str, log_callback: Callable[[str], None]) -> BatchRankingReport:
         log_callback("RankingAgent: Sorting the pool, summarizing profiles, and generating recruiter outreach packages...")
         
-        # Prepare summaries of candidates for LLM ranking context
+        # Prepare compact summaries of candidates for high-speed LLM ranking context
         candidates_summary = []
         for index, item in enumerate(candidate_evaluations):
             profile = item["profile"]
@@ -487,34 +488,24 @@ class RankingAgent:
             
             candidates_summary.append({
                 "name": profile.name,
-                "skills": profile.skills,
+                "skills": profile.skills[:6],
                 "experience_years": profile.experience_years,
-                "ml_cosine_similarity": ml_score,
-                "original_score": eval_info.overall_score,
-                "qa_adjusted_score": qa_info.adjusted_score,
+                "ml_similarity": f"{ml_score:.1f}%",
+                "verified_score": qa_info.adjusted_score,
                 "recommendation": eval_info.recommendation,
-                "qa_justification": qa_info.justification,
-                "pros": eval_info.pros,
-                "cons": eval_info.cons,
-                "missing_skills": eval_info.missing_skills
+                "top_pros": eval_info.pros[:2],
+                "top_cons": eval_info.cons[:2]
             })
 
         prompt = f"""
-        You are a Ranking and Aggregator Agent. You are given a list of candidate profiles along with their initial evaluations, QA reviews, and ML Cosine Similarity metrics.
-        Your task is to rank the candidates from best to worst and compile a comprehensive recruiter package.
+        You are a high-speed Ranking and Aggregator Agent. Rank the candidates from best to worst and compile a concise recruiter package.
         
         Instructions:
-        1. Rank the candidates from best to worst (Rank 1 is the best candidate) primarily based on their QA adjusted scores, ML scores, and overall alignment with the Job Description.
-        2. Create a brief summary (2-3 sentences) of each candidate's fit.
-        3. Draft 3-4 custom, tailored interview questions for each candidate (under 'interview_guide' and 'interview_questions'):
-           - For each question under 'interview_guide', include:
-             - 'question': The tailored technical or behavioral question probing specific gaps, missing skills, or short tenures.
-             - 'expected_answer': What key points/demonstrated knowledge a strong candidate should outline.
-             - 'red_flags': Things to watch out for, e.g., hand-waving, lack of detail, or claiming credit for others' work.
-           - Populate the legacy 'interview_questions' field as a flat list of just the question texts.
-        4. Write a personalized, professional outreach email invitation for shortlisted/interview recommended candidates under 'outreach_email' (include Subject and placeholders).
-        5. Write a constructive, polite rejection email under 'rejection_email' for rejected candidates, detailing specific feedback regarding missing requirements or alignment differences.
-        6. Write an overall summary of the batch (talent pool strength, average fit, general recommendations for the hiring manager).
+        1. Rank candidates from best to worst (Rank 1 is the best) based on verified scores, ML similarity, and JD fit.
+        2. In 'summary', write a SINGLE concise sentence summarizing the candidate's core fit.
+        3. In 'interview_guide', provide exactly 2 high-impact interview questions per candidate. For each, give a concise question, 1-sentence expected answer, and 1-sentence red flag. Populate 'interview_questions' with the 2 question strings.
+        4. In 'outreach_email', write a short, professional 3-sentence interview invite. In 'rejection_email', write a polite 3-sentence constructive rejection.
+        5. In 'overall_summary', write a CONCISE, 2-3 sentence executive batch summary highlighting the pool's top strengths and hiring recommendation. Do NOT write long rambling paragraphs.
 
         Candidates List:
         {json.dumps(candidates_summary, indent=2)}
@@ -737,7 +728,7 @@ def run_screening_pipeline(
     elif total_candidates > 1:
         # Multiple candidates: run concurrently with ThreadPoolExecutor
         log_callback(f"Step 2: Processing {total_candidates} candidates in high-speed parallel workers...")
-        max_workers = min(4, total_candidates)
+        max_workers = min(6, total_candidates)
         completed_count = 0
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             future_to_cand = {

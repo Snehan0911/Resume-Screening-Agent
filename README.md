@@ -13,7 +13,7 @@ Welcome to **Resume Screening Agent** - a state-of-the-art collaborative Multi-A
 This platform represents **honest engineering** designed to solve a critical HR challenge: screening candidates at scale while preventing AI score inflation, hallucinations, and parsing errors through cooperative, multi-step verification.
 
 *   **Platform Version**: v2.0.0 (Pure Python Stack)
-*   **Target Core AI**: Gemini 3.5 Flash Model (`gemini-3.5-flash` / `gemini-flash-latest`)
+*   **Target Core AI**: Gemini 3.8 Flash & Gemini 3.5 Flash-Lite (`gemini-3.8-flash`, `gemini-flash-latest`, `gemini-3.5-flash-lite`)
 *   **Machine Learning Engine**: TF-IDF + Cosine Similarity (Scikit-Learn)
 *   **Visual Interface**: Streamlit Dashboard Web Interface
 *   **Live Web App**: [https://resume-screening-agent-kjzscaefcqf2sf5dxj6gha.streamlit.app/](https://resume-screening-agent-kjzscaefcqf2sf5dxj6gha.streamlit.app/)
@@ -59,7 +59,7 @@ Get the entire project running in **3 simple steps** :
         * `--resumes`: Path to the folder containing candidate resumes.
         * `--output`: Filepath where the output should be saved.
         * `--format`: Output format, choosing from `json`, `csv`, `md`. (Default: `json`).
-        * `--model`: The Gemini core model to use. (Default: `gemini-3.5-flash`).
+        * `--model`: The Gemini core model to use. (Default: `gemini-3.8-flash`).
     *   **Option C: Run in a Docker Container**:
         Build and run the Streamlit dashboard in a container:
         ```bash
